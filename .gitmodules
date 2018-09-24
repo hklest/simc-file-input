@@ -1,0 +1,3 @@
+[submodule "nanocernlib"]
+	path = nanocernlib
+	url = https://github.com/sly2j/nanocernlib.git
