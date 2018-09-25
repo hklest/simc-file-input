@@ -47,6 +47,9 @@ install_manifest.txt
 *.swp
 *.swo
 
+#ycm
+compile_commands.json
+
 # python
 __pycache__/
 *.py[cod]

@@ -1,0 +1,12 @@
+# - Config file for the FooBar package
+# It defines the following variables
+#  SIMC_PROGRAM        - simc executable
+#  SIMC_LAUNCHER			 - simc launcher
+ 
+# Enable languages
+enable_language(CXX)
+
+# Compute paths
+get_filename_component(SIMC_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+#set(SIMC_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@/.. @CONF_INCLUDE_DIRS@/GSL")
