@@ -42,6 +42,7 @@ add_executable(${PROG} ${SOURCES})
 target_link_libraries(${PROG} 
 	${PROG}_detectors ${PROG}_shared ${PROG}_cteq5
 	${PROG}_detectors ${PROG}_shared ${PROG}_cteq5
+	${PROG}_CTP
 	${NANOCERNLIB_LIBRARIES})
 
 ################################################################################

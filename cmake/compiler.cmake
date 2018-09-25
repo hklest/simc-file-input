@@ -100,8 +100,6 @@ endif ()
 ################################################################################
 ## External Libraries
 #############################################################################
-### RPC
-set(RPCCOM, "rpcgen -b")
 ### nanocernlib
 include_directories(${PROJECT_SOURCE_DIR}/nanocernlib)
 set(NANOCERNLIB_LIBRARIES 

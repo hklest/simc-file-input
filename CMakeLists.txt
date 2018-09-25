@@ -25,7 +25,7 @@ include(cmake/ycm.cmake)
 set(TARGETS "")
 
 add_subdirectory(simc)
-#add_subdirectory(CTP)
+add_subdirectory(CTP)
 add_subdirectory(nanocernlib)
 
 ################################################################################
