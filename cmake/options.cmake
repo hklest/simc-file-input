@@ -8,9 +8,9 @@ if (NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif ()
 ## Offer the user the choice of overriding the installation directories
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_LIB_DIR lib/${PROJECT_NAME} CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-set(INSTAL_SHARE_DIR share CACHE PATH "Installation directory for data")
+set(INSTAL_SHARE_DIR share/${PROJECT_NAME} CACHE PATH "Installation directory for data")
 set(INSTALL_INCLUDE_DIR include/${PROJECT_NAME} CACHE PATH
   "Installation directory for header files")
 if(WIN32 AND NOT CYGWIN)

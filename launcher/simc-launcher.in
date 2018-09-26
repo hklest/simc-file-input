@@ -6,10 +6,8 @@ import os
 import subprocess
 
 ## SIMC enviroment (configured by cmake)
-#env_path = @SIMC_DATA_PATH@
-#exe_path = @SIMC_EXE_PATH@
-env_path = '/Users/sly2j/Dropbox/Work/Tools/simc/share/simc/data/'
-exe_path = '/Users/sly2j/Dropbox/Work/Tools/simc/BUILD/head/simc/simc'
+env_path = '@SIMC_DATA_PATH@'
+exe_path = '@SIMC_EXE_PATH@'
 exe_name = os.path.basename(exe_path)
 run_name = 'run_{}'.format(exe_name)
 tmp_conf_dir = 'infiles'
@@ -23,7 +21,6 @@ bash_script='''#!/bin/bash
 {data}
 eof
 '''
-#.format(outdir=tmp_output_dir, conf=tmp_conf_name, data=tmp_data_name)
 
 ## parse command line
 cmd = argparse.ArgumentParser(

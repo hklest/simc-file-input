@@ -48,9 +48,12 @@ target_link_libraries(${PROG}
 ################################################################################
 ## Export and Install
 ################################################################################
-install(TARGETS ${PROG}
+# NOT A TYPO: exe lives in lib, while launcher script lives in bin
+install(TARGETS ${PROG} 
   EXPORT ${PROJECT_NAME}-targets
-  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev)
+  RUNTIME DESTINATION "${INSTALL_LIB_DIR}" COMPONENT ${PROJECT_NAME}_runtime)
+install(TARGETS ${PROG}_detectors ${PROG}_shared ${PROG}_cteq5
+  EXPORT ${PROJECT_NAME}-targets
+  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT dev EXCLUDE_FROM_ALL
+  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT dev EXCLUDE_FROM_ALL
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT dev EXCLUDE_FROM_ALL)

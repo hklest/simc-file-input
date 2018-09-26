@@ -82,4 +82,8 @@ target_link_libraries(${PROGRAM}
 ################################################################################
 ## Export and Install
 ################################################################################
-## nothing here
+install(TARGETS ${LIBRARY} ${CLIENT_LIBRARY} ${PROGRAM}
+  EXPORT ${PROJECT_NAME}-targets
+  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT dev EXCLUDE_FROM_ALL
+  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT dev EXCLUDE_FROM_ALL
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT dev EXCLUDE_FROM_ALL)
