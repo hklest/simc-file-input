@@ -10,6 +10,7 @@ endif ()
 ## Offer the user the choice of overriding the installation directories
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTAL_SHARE_DIR share CACHE PATH "Installation directory for data")
 set(INSTALL_INCLUDE_DIR include/${PROJECT_NAME} CACHE PATH
   "Installation directory for header files")
 if(WIN32 AND NOT CYGWIN)
@@ -21,7 +22,7 @@ set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
   "Installation directory for cmake files")
 ## Make relative paths absolute (useful when auto-generating cmake configuration
 ## files)
-foreach(p LIB BIN INCLUDE CMAKE)
+foreach(p LIB BIN INCLUDE CMAKE SHARE)
   set(var INSTALL_${p}_DIR)
   if(NOT IS_ABSOLUTE "${${var}}")
     set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")

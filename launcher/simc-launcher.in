@@ -1,0 +1,93 @@
+#!/usr/bin/python
+
+import argparse
+import tempfile
+import os
+import subprocess
+
+## SIMC enviroment (configured by cmake)
+#env_path = @SIMC_DATA_PATH@
+#exe_path = @SIMC_EXE_PATH@
+env_path = '/Users/sly2j/Dropbox/Work/Tools/simc/share/simc/data/'
+exe_path = '/Users/sly2j/Dropbox/Work/Tools/simc/BUILD/head/simc/simc'
+exe_name = os.path.basename(exe_path)
+run_name = 'run_{}'.format(exe_name)
+tmp_conf_dir = 'infiles'
+tmp_output_dir = 'outfiles'
+tmp_worksim_dir = 'worksim'
+
+## actual simc launcher bash script
+bash_script='''#!/bin/bash
+./simc << eof >> {outdir}/{conf}.log
+{conf}
+{data}
+eof
+'''
+#.format(outdir=tmp_output_dir, conf=tmp_conf_name, data=tmp_data_name)
+
+## parse command line
+cmd = argparse.ArgumentParser(
+    description='Process the provided data files for a given SIMC configuration.')
+cmd.add_argument(
+    '--conf', '-c', metavar='input_file', dest='conf', required=True,
+    help='SIMC configuration file (inputfile).')
+cmd.add_argument(
+    '--output', '-o', metavar='output_dir', dest='outdir', required=True,
+    help='Output file directory.')
+cmd.add_argument(
+    'data', metavar='data_file', 
+    help='Data file from generator in SIMC text format.')
+args=cmd.parse_args()
+print('\nRunning SIMC on `{}\''.format(args.data))
+print('\nConfiguration: `{}\''.format(args.conf))
+print('Output directory: `{}\''.format(args.outdir))
+
+## get absolute path for everything
+data_path = os.path.abspath(args.data)
+conf_path = os.path.abspath(args.conf)
+output_dir = os.path.abspath(args.outdir)
+
+## also get relative paths to be used in our tmp environment
+tmp_data_path = os.path.basename(data_path)
+tmp_conf_path = os.path.basename(conf_path)
+tmp_conf_name, tmp_conf_ext = os.path.splitext(tmp_conf_path)
+## make sure our tmp_conf_path ends on '.inp'
+if tmp_conf_ext is '.inp':
+    pass
+else:
+    tmp_conf_path = '{}.inp'.format(tmp_conf_name)
+## also include our tmp config directory
+tmp_conf_path = '{dir}/{file}'.format(dir=tmp_conf_dir, file=tmp_conf_path)
+
+print('Output file base name: `{}\''.format(tmp_conf_name))
+
+print('\nGetting ready to run SIMC...')
+## setup a temporary SIMC environment
+with tempfile.TemporaryDirectory() as tmpdir:
+    print(' - Creating temporary environment...')
+    os.chdir(tmpdir)
+    for file in os.listdir(env_path):
+        os.symlink(env_path + '/' + file, file)
+
+    print(' - Loading SIMC executable...')
+    os.symlink(exe_path, exe_name)
+
+    print(' - Loading configuration file...')
+    os.mkdir(tmp_conf_dir)
+    os.symlink(conf_path, tmp_conf_path)
+
+    print(' - Linking output directories...')
+    os.symlink(output_dir, tmp_output_dir)
+    os.symlink(output_dir, tmp_worksim_dir)
+
+    print(' - Creating run script...')
+    launcher = open(run_name, 'w')
+    launcher.write(bash_script.format(
+        outdir=tmp_output_dir, 
+        data=tmp_data_path,
+        conf=tmp_conf_name))
+    launcher.close()
+    print('\nCalling SIMC, good luck!')
+    subprocess.call(['sh', run_name])
+    print('All done!')
+    #subprocess.call(['cp', run_name, '/tmp/'])

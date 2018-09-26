@@ -48,9 +48,9 @@ target_link_libraries(${PROG}
 ################################################################################
 ## Export and Install
 ################################################################################
-#install(TARGETS ${LIBRARY}
-#  EXPORT ${PROJECT_NAME}-targets
-#  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
-#  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-#  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
-#  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev)
+install(TARGETS ${PROG}
+  EXPORT ${PROJECT_NAME}-targets
+  RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" COMPONENT dev)
