@@ -318,6 +318,9 @@ C modified 5/15/06 for poinct
      &		vertex%e%xptar,vertex%e%yptar,vertex%e%theta,vertex%e%phi)
 	call physics_angles(spec%p%theta,spec%p%phi,
      &		vertex%p%xptar,vertex%p%yptar,vertex%p%theta,vertex%p%phi)
+	write(6,*) 
+     > spec%p%theta,spec%p%phi, 
+     > vertex%p%xptar,vertex%p%yptar,vertex%p%theta,vertex%p%phi
 
 
 ! Generate Fermi Momentum and Em for A(e,e'pi) and A(e,e'K). 
