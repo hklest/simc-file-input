@@ -42,8 +42,12 @@ c
          read(51,*,end=999,err=999) dxdz,dydz,e_mom,dxdzp,dydzp,p_mom
          count = count + 1
 c
-         p_mom = p_mom *1000.
-         e_mom = e_mom *1000.
+         p_mom = p_mom *1.
+         e_mom = e_mom *1.
+         dxdz = dxdz/1000.
+         dydz = dydz/1000.
+         dxdzp = dxdzp/1000.
+         dydzp = dydzp/1000.
 c        
          return
 c

@@ -22,12 +22,24 @@ file (GLOB MAKEREG_SOURCES "makereg/*.c")
 ################################################################################
 ## Auto-generated sources
 ################################################################################
-set (RPC_RAW "${CMAKE_CURRENT_SOURCE_DIR}/include/daVarRpc.x")
+set (RPC_ORIG "${CMAKE_CURRENT_SOURCE_DIR}/daVarRpc.x")
+set (RPC_RAW "${CMAKE_CURRENT_BINARY_DIR}/daVarRpc.x")
+set (RPC_DEP_HEADER "${CMAKE_CURRENT_BINARY_DIR}/daVar.h")
+set (RPC_DEP_HEADER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/include/daVar.h")
 set (RPC_XDR_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/rpc_xdr.c")
 set (RPC_SVC_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/rpc_svc.c")
 set (RPC_SVC_PATCH_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/rpc_svc_patch.c")
 set (RPC_CLNT_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/rpc_clnt.c")
 set (RPC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/daVarRpc.h")
+#set (RPC_HEADER_HACK "${CMAKE_CURRENT_SOURCE_DIR}/include/daVarRpc.h")
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${RPC_RAW}
+  COMMAND cp ${RPC_ORIG} ${RPC_RAW}
+  DEPENDS ${RPC_ORIG} ${RPC_DEP_HEADER})
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${RPC_DEP_HEADER}
+  COMMAND cp ${RPC_DEP_HEADER_SRC} ${RPC_DEP_HEADER}
+  DEPENDS ${RPC_DEP_HEADER_SRC})
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${RPC_XDR_SOURCE}
 	COMMAND ${RPCCOM} -o ${RPC_XDR_SOURCE} -c ${RPC_RAW}
@@ -60,7 +72,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 ################################################################################
 add_library(${LIBRARY} STATIC 
 	${CTP_SOURCES} 
-	${RPC_SVC_SOURCE} ${RPC_XDR_SOURCE} ${RPC_HEADER})
+${RPC_SVC_SOURCE} ${RPC_XDR_SOURCE} ${RPC_HEADER})
 set_target_properties(${LIBRARY} PROPERTIES 
   VERSION ${SIMC_VERSION} 
   SOVERSION ${SIMC_SOVERSION})
