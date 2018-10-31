@@ -3,7 +3,7 @@
 ################################################################################
 ## PROJECT: SIMC (Cmake build with file input)
 ################################################################################
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.5)
 project (simc)
 set (SIMC_MAJOR_VERSION 1)
 set (SIMC_MINOR_VERSION 0)
