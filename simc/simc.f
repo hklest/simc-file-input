@@ -36,7 +36,7 @@
 	type(sums_twoarm)::	sumerr, sumerr2, aveerr, resol
 
 	real*8 one
-	parameter (one=1.0e0)	!double precision 1 for subroutine calls
+	parameter (one=1.0e0)	!real*8 1 for subroutine calls
 
 	real*8 grnd
 	real*8 ang_targ_earm,ang_targ_parm
@@ -1334,7 +1334,7 @@ c	enddo
 	real*8 zhadron
 
 	real*8 zero
-	parameter (zero=0.0e0)	!double precision zero for subroutine calls
+	parameter (zero=0.0e0)	!real*8 zero for subroutine calls
 
 ! Prepare the event for the Monte Carlo's and/or spectrometer cuts
 

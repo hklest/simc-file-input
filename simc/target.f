@@ -273,7 +273,7 @@ c	      stop
 	logical	liquid
 
 	real*8 zero
-	parameter (zero=0.0e0)	!double precision zero for subroutine calls
+	parameter (zero=0.0e0)	!real*8 zero for subroutine calls
 
 !Given limiting values for the electron/proton angles, the z-position in the
 !target, and beta for the proton, determine min and max losses in target (and

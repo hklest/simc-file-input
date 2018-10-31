@@ -29,7 +29,7 @@
 ************************************************************************
 * Fortran translation by Hiroshi Takano.  Jan. 13, 1999.
 *
-*   genrand()      -> double precision function grnd()
+*   genrand()      -> real*8 function grnd()
 *   sgenrand(seed) -> subroutine sgrnd(seed)
 *                     integer seed
 *
@@ -45,7 +45,7 @@
 ccc      program main
 ccc
 ccc      implicit integer(i-n)
-ccc      implicit double precision(a-h,o-z)
+ccc      implicit real*8(a-h,o-z)
 ccc
 ccc      parameter(no=1000)
 ccc      dimension r(0:7)
@@ -90,7 +90,7 @@ ccc      end
       return
       end
 ************************************************************************
-      double precision function grnd()
+      real*8 function grnd()
 
       implicit none
 

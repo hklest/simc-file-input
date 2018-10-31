@@ -77,6 +77,10 @@ with tempfile.TemporaryDirectory() as tmpdir:
     os.symlink(output_dir, tmp_output_dir)
     os.symlink(output_dir, tmp_worksim_dir)
 
+    print(' - Linking input file...')
+    os.symlink(data_path, tmp_data_path)
+
+
     print(' - Creating run script...')
     launcher = open(run_name, 'w')
     launcher.write(bash_script.format(

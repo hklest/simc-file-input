@@ -12,7 +12,7 @@
 	logical	using_Eloss, using_Coulomb
 
 	real*8 zero
-	parameter (zero=0.0e0)	!double precision zero for subroutines calls.
+	parameter (zero=0.0e0)	!real*8 zero for subroutines calls.
 
 ! The radiation length of the target
 
@@ -663,7 +663,7 @@ c	exponentiate = use_expon
 ! modifications to vertex.* variables in later calls.
 
 	real*8 zero
-	parameter (zero=0.0e0)	!double precision zero for subroutine calls.
+	parameter (zero=0.0e0)	!real*8 zero for subroutine calls.
 
 ! Compute some quantities that will be needed for rad corr on this event
 

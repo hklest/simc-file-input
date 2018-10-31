@@ -301,14 +301,13 @@ C modified 5/15/06 for poinct
 	   ok_2pi = .true.
 	   call get_file_event(spec%e%theta,spec%p%theta,
      >       vertex%e%xptar,vertex%e%yptar,vertex%e%p,
-     >       vertex%p%xptar,vertex%p%yptar,vertex%p%p,ok_2pi)
+     >       vertex%p%xptar,vertex%p%yptar,vertex%p%p)
 	     if ( .not. ok_2pi) goto 100
 	     vertex%e%delta = 100.*(vertex%e%P-spec%e%P)/spec%e%P
 	     vertex%p%delta = 100.*(vertex%p%P-spec%p%P)/spec%p%P
 	     vertex%e%E = sqrt(vertex%e%P*vertex%e%P + 0.511*0.511)
 	     vertex%p%E = sqrt(vertex%p%P*vertex%p%P + 0.511*0.511)
 	   endif
-
 
 ! Calculate the electron and proton PHYSICS angles from the spectrometer angles.
 ! Note that the proton angles are not yet know for hydrogen elastic.
@@ -318,10 +317,6 @@ C modified 5/15/06 for poinct
      &		vertex%e%xptar,vertex%e%yptar,vertex%e%theta,vertex%e%phi)
 	call physics_angles(spec%p%theta,spec%p%phi,
      &		vertex%p%xptar,vertex%p%yptar,vertex%p%theta,vertex%p%phi)
-	write(6,*) 
-     > spec%p%theta,spec%p%phi, 
-     > vertex%p%xptar,vertex%p%yptar,vertex%p%theta,vertex%p%phi
-
 
 ! Generate Fermi Momentum and Em for A(e,e'pi) and A(e,e'K). 
 	pfer=0.0

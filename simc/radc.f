@@ -538,7 +538,7 @@ c	enddo
 	type(event):: vertex
 
 	real*8 zero
-	parameter (zero=0.0e0)	!double precision zero for subroutine calls
+	parameter (zero=0.0e0)	!real*8 zero for subroutine calls
 
 	basicrad_val_reciprocal=basicrad_val_reciprocal+0. !avoid unused variable error
 ! Compute a more precise value for the radiative probability at the

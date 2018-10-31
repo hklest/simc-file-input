@@ -5,6 +5,7 @@ import tempfile
 import os
 import errno
 import subprocess
+import shutil
 
 ## SIMC enviroment (configured by cmake)
 env_path = '@SIMC_DATA_PATH@'
@@ -17,7 +18,7 @@ tmp_worksim_dir = 'worksim'
 
 ## actual simc launcher bash script
 bash_script='''#!/bin/bash
-./simc << eof >> {outdir}/{conf}.log
+./simc << eof
 {conf}
 {data}
 eof
@@ -66,33 +67,39 @@ try:
 except OSError as exc:
     if exc.errno is not errno.EEXIST:
         raise
+    else:
+        shutil.rmtree('debug-simc')
+        os.makedirs('debug-simc')
 
 
-with 'debug-simc' as tmpdir:
-    print(' - Creating temporary environment...')
-    os.chdir(tmpdir)
-    for file in os.listdir(env_path):
-        os.symlink(env_path + '/' + file, file)
+tmpdir = 'debug-simc'
+print(' - Creating temporary environment...')
+os.chdir(tmpdir)
+for file in os.listdir(env_path):
+    os.symlink(env_path + '/' + file, file)
 
-    print(' - Loading SIMC executable...')
-    os.symlink(exe_path, exe_name)
+print(' - Loading SIMC executable...')
+os.symlink(exe_path, exe_name)
 
-    print(' - Loading configuration file...')
-    os.mkdir(tmp_conf_dir)
-    os.symlink(conf_path, tmp_conf_path)
+print(' - Loading configuration file...')
+os.mkdir(tmp_conf_dir)
+os.symlink(conf_path, tmp_conf_path)
 
-    print(' - Linking output directories...')
-    os.symlink(output_dir, tmp_output_dir)
-    os.symlink(output_dir, tmp_worksim_dir)
+print(' - Linking output directories...')
+os.symlink(output_dir, tmp_output_dir)
+os.symlink(output_dir, tmp_worksim_dir)
 
-    print(' - Creating run script...')
-    launcher = open(run_name, 'w')
-    launcher.write(bash_script.format(
-        outdir=tmp_output_dir, 
-        data=tmp_data_path,
-        conf=tmp_conf_name))
-    launcher.close()
-    print('\nCalling SIMC, good luck!')
-    subprocess.call(['sh', run_name])
-    print('All done!')
-    #subprocess.call(['cp', run_name, '/tmp/'])
+print(' - Linking input file...')
+os.symlink(data_path, tmp_data_path)
+
+print(' - Creating run script...')
+launcher = open(run_name, 'w')
+launcher.write(bash_script.format(
+    outdir=tmp_output_dir, 
+    data=tmp_data_path,
+    conf=tmp_conf_name))
+launcher.close()
+print('\nCalling SIMC, good luck!')
+subprocess.call(['sh', run_name])
+print('All done!')
+#subprocess.call(['cp', run_name, '/tmp/'])
