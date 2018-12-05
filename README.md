@@ -49,3 +49,17 @@ Documentation
 
 For more information, see the [SIMC Monte Carlo page in the Hall C
 Wiki](https://hallcweb.jlab.org/wiki/index.php/SIMC_Monte_Carlo)
+
+
+Building This Version
+---------------------
+
+```bash
+git clone git@gitlab.com:jpsi007/simc-file-input.git
+cd simc-file-input
+git submodule update --init
+mkdir build  && cd build
+cmake ../. -DCMAKE_INSTALL_PREFIX=$HOME/stow/simc_file_input
+make -j4 install
+```
+
