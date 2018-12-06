@@ -23,6 +23,9 @@ Features
 Reactions
 ---------
 
+***At this time, this version of simc only supports running from an external
+   event list. Running with the internal generator will be enabled in the
+   launcher soon.***
 SIMC has physics models for the following reactions.
 * Elastic and quasi-elastic scatering: H(e,e'p), A(e,e'p)
 * Exclusive pion production: H(e,e'pi+)n, A(e,e'pi+/-)
