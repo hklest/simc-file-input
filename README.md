@@ -133,7 +133,17 @@ simc -c $SIMC_PREFIX/share/simc/examples/example1.inp \
      -o $SIMC_TUTORIAL_DIR \
      $SIMC_PREFIX/share/simc/examples/sample_events.dat
 ```
-7. 
+7. This writes a couple of output files to your output directory. Let's go
+   there and check it out!
+```bash
+cd $SIMC_TUTORIAL_DIR; ls
+```
+8. The two most important files are:
+    1. example1.log: The log file containing the log output from simc
+    2. example1.rzdat: An HBOOK file with the simc output. You can convert this
+                       to the ROOT format using the h2root program that comes
+                       with ROOT.
+9. That's all!
 
 # Old simc documentation
 
