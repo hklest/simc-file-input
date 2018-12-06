@@ -14,6 +14,11 @@ Features
   particle decay are included
 * Simple presecriptions are available for Final State Interactions,
   Coulomb Corrections and other effects.
+* This is a modified version of simc with the following additions:
+  1. Capable of reading events from an input file. **This is currently the
+     the only mode that is supported**
+  2. CMAKE based build system
+  3. Launcher that allows the simc program to be invoked from any directory
 
 Reactions
 ---------
