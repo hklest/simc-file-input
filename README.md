@@ -81,6 +81,60 @@ cmake ../. -DCMAKE_INSTALL_PREFIX=$SIMC_PREFIX
 make -j4 install
 ```
 
+## Event file format
+simc reads in your events from a plain text file. The format for this file is
+one line per event where the following HMS and SHMS variables are given.
+Note that at this point, we don't pass the vertex information yet **TODO**.
+```bash
+hms_xptar hms_yptar hms_particle_mom shms_xptar shms_yptar shms_particle_mom
+```
+Definitions:
+```
+hms_* :  HMS particle
+shms_*:  SHMS particle
+*_xptar: dx/dz relative to the central ray
+*_yptar: dy/dz relative to the central ray
+*_particle_momentum: Particle momentum in MeV
+```
+The coordinate system is at the target center with z pointing along the central
+spectrometer angle, +x pointing vertical down and +y pointing to the left
+(i.e. smaller HMS angles and larger SHMS angles).
+
+## Running example
+A simple example of how to use simc is installed under 
+$SIMC_PREFIX/share/simc/examples.
+
+1. (If needed:) Add the install bin directory to your PATH. For bash this would be:
+```bash
+export PATH=${SIMC_PREFIX}/bin:$PATH
+```
+2. Create an output directory for your example, e.g. /tmp/example. Point
+   an environment variable to this directory so we can easily refer to it in
+   this tutorial
+```bash
+export SIMC_TUTORIAL_DIR="<YOUR_TUTORIAL_DIRECTORY>"
+```
+3. Look at the simc help using the -h flag
+```bash
+simc -h
+```
+4. To run simc, you will need a configuration file (input file) and an event
+   list. The input file defines the spectrometer settings, while the event file
+   is a text that uses the format as described above. You can find the files
+   for this example in $SIMC_PREFIX/share/simc/examples
+   1. The configuration file is called example1.inp. You pass it to simc with
+      the required -c flag
+   2. The event list is called sample_events.dat
+5. simc will need to know where to write its output files. You tell simce by
+   passing the required -o flag.
+6. Lets run simc!
+```bash
+simc -c $SIMC_PREFIX/share/simc/examples/example1.inp \
+     -o $SIMC_TUTORIAL_DIR \
+     $SIMC_PREFIX/share/simc/examples/sample_events.dat
+```
+7. 
+
 # Old simc documentation
 
 *You probably won't need the information past this point*.
