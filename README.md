@@ -83,6 +83,8 @@ make -j4 install
 
 # Old simc documentation
 
+*You probably won't need the information past this point*.
+
 ## Reactions
 
 ***At this time, this version of simc only supports running from an external
