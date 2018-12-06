@@ -100,7 +100,7 @@ The coordinate system is at the target center with z pointing along the central
 spectrometer angle, +x pointing vertical down and +y pointing to the left
 (i.e. smaller HMS angles and larger SHMS angles).
 
-## Running example
+## Tutorial
 A simple example of how to use simc is installed under 
 $SIMC_PREFIX/share/simc/examples.
 
@@ -112,7 +112,7 @@ export PATH=${SIMC_PREFIX}/bin:$PATH
    an environment variable to this directory so we can easily refer to it in
    this tutorial
 ```bash
-export SIMC_TUTORIAL_DIR="<YOUR_TUTORIAL_DIRECTORY>"
+export SIMC_TUTORIAL_DIR="<YOUR_TUTORIAL_DIR>"
 ```
 3. Look at the simc help using the -h flag
 ```bash
