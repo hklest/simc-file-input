@@ -125,6 +125,9 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	ntu(31) = recon%Pm/1000.			!GeV/c
 	ntu(32) = recon%theta_pq			!theta_pq - radians
 	ntu(33) = recon%phi_pq				!phi_pq - radians
+	if (doing_2pi) then
+	  ntu(34) = main%weight			!event weight
+	endif
 
 	if (doing_pion .or. doing_kaon .or. doing_delta) then
 	  ntu(34) = ntup%mm/1000.			!missmass (nucleon)

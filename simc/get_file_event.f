@@ -1,5 +1,5 @@
       subroutine get_file_event(th_spec_e,th_spec_p,
-     >    dxdz,dydz,e_mom,dxdzp,dydzp,p_mom)
+     >    dxdz,dydz,e_mom,dxdzp,dydzp,p_mom,weight)
 c
 c  input variables:
 c        th_spec_e : central spec angle for electron (rad)
@@ -20,6 +20,7 @@ c
          real*8 th_spec_p
          real*8 dxdz,dydz
          real*8 dxdzp,dydzp
+         real*8 w, weight
          character*80 multpifile
          integer count,count_miss
          logical first
@@ -39,7 +40,7 @@ c
 c
 c
          end_of_2pi_file = .false. 
-         read(51,*,end=999,err=999) dxdz,dydz,e_mom,dxdzp,dydzp,p_mom
+         read(51,*,end=999,err=999) dxdz,dydz,e_mom,dxdzp,dydzp,p_mom,w
          count = count + 1
 c
          p_mom = p_mom *1.
@@ -48,6 +49,7 @@ c
          dydz = dydz/1000.
          dxdzp = dxdzp/1000.
          dydzp = dydzp/1000.
+         weight = w
 c        
          return
 c
