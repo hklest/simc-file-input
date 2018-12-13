@@ -97,7 +97,7 @@
 	if (doing_2pi) then
 	  m = m+1
 	  NtupleTag(m) = 'Weight'	! 34
-	endif
+	else if (doing_pion .or. doing_kaon .or. doing_delta) then
 	  m = m+1
 	  NtupleTag(m) = 'missmass'	! 34
 	  m = m+1
