@@ -94,7 +94,10 @@
 	NtupleTag(m) = 'thetapq'	! 32
 	m = m+1
 	NtupleTag(m) = 'phipq'		! 33
-	if (doing_pion .or. doing_kaon .or. doing_delta) then
+	if (doing_2pi) then
+	  m = m+1
+	  NtupleTag(m) = 'Weight'	! 34
+	endif
 	  m = m+1
 	  NtupleTag(m) = 'missmass'	! 34
 	  m = m+1
