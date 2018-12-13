@@ -126,7 +126,7 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	ntu(32) = recon%theta_pq			!theta_pq - radians
 	ntu(33) = recon%phi_pq				!phi_pq - radians
 	if (doing_2pi) then
-	  ntu(34) = main%weight			!event weight
+	  ntu(34) = main%gen_weight			!event weight
 	endif
 
 	if (doing_pion .or. doing_kaon .or. doing_delta) then
