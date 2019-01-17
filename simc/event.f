@@ -308,6 +308,11 @@ C modified 5/15/06 for poinct
 	     vertex%p%delta = 100.*(vertex%p%P-spec%p%P)/spec%p%P
 	     vertex%e%E = sqrt(vertex%e%P*vertex%e%P + 0.511*0.511)
 	     vertex%p%E = sqrt(vertex%p%P*vertex%p%P + 0.511*0.511)
+       if(debug(5)) then
+          write(*,*) ' E and Delta: '
+          write(*,*) '     HMS: ',vertex%e%E,vertex%e%delta
+          write(*,*) '    SHMS: ',vertex%p%E,vertex%p%delta
+       endif !debug
 	   endif
 
 ! Calculate the electron and proton PHYSICS angles from the spectrometer angles.
@@ -318,6 +323,11 @@ C modified 5/15/06 for poinct
      &		vertex%e%xptar,vertex%e%yptar,vertex%e%theta,vertex%e%phi)
 	call physics_angles(spec%p%theta,spec%p%phi,
      &		vertex%p%xptar,vertex%p%yptar,vertex%p%theta,vertex%p%phi)
+	if(debug(5)) then
+	   write(*,*) ' PHYSICS ANGLES: '
+	   write(*,*) '       HMS(deg): ',vertex%e%theta/pi*180,vertex%e%phi/pi*180
+	   write(*,*) '      SHMS(deg): ',vertex%p%theta/pi*180,vertex%p%phi/pi*180
+	endif !debug
 
 ! Generate Fermi Momentum and Em for A(e,e'pi) and A(e,e'K). 
 	pfer=0.0

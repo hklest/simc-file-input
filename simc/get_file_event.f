@@ -13,6 +13,7 @@ c        dydzp : yptar for proton
 c        p_mom : proton momentum ( MeV)
 c
       implicit none
+	include 'simulate.inc'
 c
          real*8 e_mom
          real*8 p_mom
@@ -43,13 +44,21 @@ c
          read(51,*,end=999,err=999) dxdz,dydz,e_mom,dxdzp,dydzp,p_mom,w
          count = count + 1
 c
-         p_mom = p_mom *1.
-         e_mom = e_mom *1.
-         dxdz = dxdz/1000.
-         dydz = dydz/1000.
-         dxdzp = dxdzp/1000.
-         dydzp = dydzp/1000.
+         p_mom = p_mom*1000.
+         e_mom = e_mom*1000.
+         dxdz = dxdz/1.
+         dydz = dydz/1.
+
+         dxdzp = dxdzp/1.
+         dydzp = dydzp/1.
          weight = w
+
+	       if(debug(5)) then
+             write(*,*) ' '
+             write(*,*) ' NEW EVENT: ',count
+             write(*,*) '       HMS: ',dxdz,dydz,e_mom
+             write(*,*) '      SHMS: ',dxdzp,dydzp,p_mom
+	       endif !debug
 c        
          return
 c
