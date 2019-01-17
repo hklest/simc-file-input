@@ -94,6 +94,7 @@ Definitions:
 *_SHMS:  SHMS particle
 px,py,pz: paricle 3-momentum components in GeV
 E: particle Energy in GeV
+vz: z-vertex positin in cm (currently unused)
 weight: event weight
 ```
 Make sure you use the right coordinate system!
