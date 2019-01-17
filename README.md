@@ -86,17 +86,17 @@ simc reads in your events from a plain text file. The format for this file is
 one line per event where the following HMS and SHMS variables are given.
 Note that at this point, we don't pass the vertex information yet **TODO**.
 ```bash
-hms_xptar hms_yptar hms_particle_mom shms_xptar shms_yptar shms_particle_mom weight
+px_HMS py_HMS pz_HMS E_HMS vz_HMS px_SHMS py_SHMS pz_SHMS E_SHMS vz_SHMS weight
 ```
 Definitions:
 ```
-hms_* :  HMS particle
-shms_*:  SHMS particle
-*_xptar: dx/dz relative to the central ray
-*_yptar: dy/dz relative to the central ray
-*_particle_momentum: Particle momentum in MeV
+*_HMS :  HMS particle
+*_SHMS:  SHMS particle
+px,py,pz: paricle 3-momentum components in GeV
+E: particle Energy in GeV
 weight: event weight
 ```
+Make sure you use the right coordinate system!
 The coordinate system is at the target center with z pointing along the central
 spectrometer angle, +x pointing vertical down and +y pointing to the left
 (i.e. smaller HMS angles and larger SHMS angles).
