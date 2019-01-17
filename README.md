@@ -1,6 +1,6 @@
-# simc_gfortran - Hall C/A Physics Monte Carlo
+# simc - Hall C/A Physics Monte Carlo
 
-SIMC (simc_gfortran) is the standard Hall C Monte Carlo for
+SIMC (simc-file-input) is the standard Hall C Monte Carlo for
 coincidence reactions, written in FORTRAN.
 
 ## Features
