@@ -299,7 +299,7 @@ C modified 5/15/06 for poinct
 	endif	!not (doing_hyd_elast)
 	if ( doing_2pi) then
 	   ok_2pi = .true.
-	   call get_file_event(spec%e%theta,spec%p%theta,
+	   call get_file_event(electron_arm,spec%e%theta,spec%p%theta,
      >       vertex%e%xptar,vertex%e%yptar,vertex%e%p,vertex%e%E,
      >       vertex%p%xptar,vertex%p%yptar,vertex%p%p,vertex%p%E,
      >       main%gen_weight)
