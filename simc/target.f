@@ -13,6 +13,7 @@
 	real*8 Eloss_target, Eloss_Al,Eloss_air		! energy losses
 	real*8 Eloss_kevlar,Eloss_mylar			! (temporary)
 	real*8 z_can,t,atmp,btmp,ctmp,costmp,th_can	!for the pudding-can target.
+	real*8 ecir,ecor,entec,twall,tcm
 	logical liquid
 
 	s_Al = 0.0
@@ -36,6 +37,8 @@
 	    s_Al = s_Al + 0.0028*inch_cm
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 	    s_Al = s_Al + 0.0050*inch_cm
+	  else if (targ%can .eq. 3) then	!cryo2017 10cm
+	     s_Al = s_Al + 0.005*inch_cm
 	  endif
 	endif
 
@@ -63,12 +66,12 @@
 ! .....		X0=28.6cm for Kapton, X0=28.7cm for Mylar) 
 ! ...... ASSUMES liquid targets are 2.65" wide, and have 5.0 mil Al side walls.
 
-! ... For SHMS, use SOS windows for now (just a space filler for now).
+
 
 20	continue
 	if (electron_arm.eq.1) then		!electron is in HMS
-	  s_Al = 0.016*inch_cm
-	  s_air = 15
+	  s_Al = 0.020*inch_cm
+	  s_air = 24.61
  	  s_kevlar = 0.015*inch_cm
 	  s_mylar = 0.005*inch_cm
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta+targ%angle))
@@ -91,10 +94,16 @@
 	  s_mylar = 0.010*inch_cm
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	else if (electron_arm.eq.5 .or. electron_arm.eq.6) then	!SHMS
-	  s_Al = 0.008*inch_cm
-	  s_air = 15
- 	  s_kevlar = 0.005*inch_cm
-	  s_mylar = 0.003*inch_cm
+C Scattering before magnets:  Approximate all scattering as occuring AT TARGET.
+C SHMS
+C  20 mil Al scattering chamber window (X0=8.89cm)
+C  57.27 cm air (X0=30420cm)
+C spectrometer entrance window
+C  10 mil Al s (X0=8.89cm)
+	  s_Al = 0.020*inch_cm + 0.010*inch_cm
+	  s_air = 57.27
+ 	  s_kevlar = 0.0
+	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
 	s_target = forward_path
@@ -133,6 +142,26 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	       stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
+	  else if (targ%can .eq. 3) then	!cry02017 10cm
+            ecir=1.315*2.54           ! endcap inner radius (cm)
+            ecor=1.320*2.54           ! endcap outer radius (cm)
+            entec=targ%length-ecir        ! entrance to end cap (cm)
+            twall = (ecor-ecir)    !  Al wall
+	    
+	    tcm = (targ%length/2. + zpos)
+            if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
+               s_target=ecir/sin(targ%angle)   ! liquid target
+               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+            else
+               s_target=                              ! e goes throught end cap
+     >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
+
+              s_Al=   s_Al+                        ! wall
+     >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
+     >    *twall/(ecor-ecir)                   ! & end cap
+        endif
 	  endif
 
 	endif		
@@ -157,8 +186,8 @@ c	       stop
 
 30	continue
 	if (hadron_arm.eq.1) then		!proton in HMS
-	  s_Al = 0.016*inch_cm
-	  s_air = 15
+	  s_Al = 0.020*inch_cm
+	  s_air = 24.61
  	  s_kevlar = 0.015*inch_cm
 	  s_mylar = 0.005*inch_cm
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta+targ%angle))
@@ -185,10 +214,16 @@ c	       stop
 	  s_mylar = 0.010*inch_cm
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	else if (hadron_arm.eq.5 .or. hadron_arm.eq.6) then	!SHMS
-	  s_Al = 0.008*inch_cm
-	  s_air = 15
- 	  s_kevlar = 0.005*inch_cm
-	  s_mylar = 0.003*inch_cm
+C Scattering before magnets:  Approximate all scattering as occuring AT TARGET.
+C SHMS
+C  20 mil Al scattering chamber window (X0=8.89cm)
+C  57.27 cm air (X0=30420cm)
+C spectrometer entrance window
+C  10 mil Al s (X0=8.89cm)
+	  s_Al = 0.020*inch_cm + 0.010*inch_cm
+	  s_air = 57.27
+ 	  s_kevlar = 0.0
+	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
 
@@ -202,6 +237,7 @@ c	       stop
 	      s_target = side_path
 	      s_Al = s_Al + 0.005*inch_cm / abs(sin(theta))
 	    endif
+	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 
 ! this is ugly.  Solve for z position where particle intersects can.  The
@@ -227,6 +263,26 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	      stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
+	  else if (targ%can .eq. 3) then	!cry02017 10cm
+            ecir=1.315*2.54           ! endcap inner radius (cm)
+            ecor=1.320*2.54           ! endcap outer radius (cm)
+            entec=targ%length-ecir        ! entrance to end cap (cm)
+            twall = (ecor-ecir)    !  Al wall
+	    
+	    tcm = (targ%length/2. + zpos)
+            if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
+               s_target=ecir/sin(targ%angle)   ! liquid target
+               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+            else
+               s_target=                              ! e goes throught end cap
+     >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
+
+              s_Al=   s_Al+                        ! wall
+     >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
+     >    *twall/(ecor-ecir)                   ! & end cap
+        endif
 	  endif
 
 	endif
@@ -273,7 +329,7 @@ c	      stop
 	logical	liquid
 
 	real*8 zero
-	parameter (zero=0.0e0)	!real*8 zero for subroutine calls
+	parameter (zero=0.0e0)	!double precision zero for subroutine calls
 
 !Given limiting values for the electron/proton angles, the z-position in the
 !target, and beta for the proton, determine min and max losses in target (and
