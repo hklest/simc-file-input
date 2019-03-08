@@ -190,7 +190,9 @@ C DJG:
 	   doing_deutrho = (nint(targ%A).eq.2)
 	   doing_herho = (nint(targ%A).eq.3)
 	   doing_eep=.false.
-
+        else if (doing_positron) then
+	   Mh = Me
+	   doing_eep=.false.
 	else		!doing_eep if nothing else set.
 	  Mh=Mp
 	  doing_eep = .true.
@@ -302,6 +304,9 @@ C DJG:
 	      sign_hadron=-1.0
 	   endif
 
+	else if(doing_positron) then
+	   targ%Mtar_struck = Mp
+	   targ%Mrec_struck = Mp
 
 ! ... for normal production, Strike p (n), recoil partile is n(p). 
 ! ... for bound final state, use targ.Mrec if it appears to be OK (same A
@@ -411,7 +416,7 @@ C DJG:
 	    targ%angle = 0.0
 	    write(6,*) 'Forcing target angle to zero for cryotarget.'
 	  endif
-	  if (targ%can.ne.1 .and. targ%can.ne.2) stop 'bad targ.can value'
+	  if (.not.(targ%can .ge. 1 .and. targ%can.le.3)) stop 'bad targ.can value'
 	endif
 	if(sin(targ%angle) .gt. 0.85) then
 	  write(6,*) 'BAD targ.angle (0 is perp. to beam, +ve is rotated towards SOS)'
@@ -500,7 +505,7 @@ C DJG:
 	if (nint(targ%Z).eq.1) using_Coulomb=.false.  !no coulomb corr. for Z=1
 
 ! ... target
-
+        write(*,*) " Mh2 = " , Mh2
 	call target_init(using_Eloss, using_Coulomb, spec%e%theta, spec%p%theta,
      >		spec%p%P, Mh2, Ebeam, spec%e%P)
 
@@ -769,10 +774,12 @@ C DJG:
 	   else
 	      stop 'I don''t have ANY idea what (e,e''rho) we''re doing!!!'
 	   endif
-
+	else if (doing_positron) then
+	  write(6,*) ' ****--------  Doing positron  --------****'
 	else if (doing_phsp) then
 	  write(6,*) ' ****--------  PHASE SPACE - NO physics, NO radiation  --------****'
 	else
+	   write(*,*) ' doing_positron ',doing_positron
 	  stop 'I don''t have ANY idea what we''re doing!!!'
 	endif
 
@@ -886,6 +893,7 @@ C DJG:
 	ierr = regparmint('doing_hplus', doing_hplus,1)
 	ierr = regparmint('doing_2pi',doing_2pi,0)
 	ierr = regparmint('doing_rho',doing_rho,0)
+	ierr = regparmint('doing_positron',doing_positron,0)
 	ierr = regparmint('doing_decay',doing_decay,0)
 	ierr = regparmdouble('ctau',ctau,0)
 
