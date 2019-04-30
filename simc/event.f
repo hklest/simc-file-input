@@ -302,7 +302,7 @@ C modified 5/15/06 for poinct
 	   call get_file_event(electron_arm,spec%e%theta,spec%p%theta,
      >       vertex%e%xptar,vertex%e%yptar,vertex%e%p,vertex%e%E,
      >       vertex%p%xptar,vertex%p%yptar,vertex%p%p,vertex%p%E,
-     >       main%gen_weight)
+     >       main%target%z, targ%zoffset, main%gen_weight)
 	     if ( .not. ok_2pi) goto 100
 	     vertex%e%delta = 100.*(vertex%e%P-spec%e%P)/spec%e%P
 	     vertex%p%delta = 100.*(vertex%p%P-spec%p%P)/spec%p%P

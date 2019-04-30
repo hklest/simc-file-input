@@ -1,5 +1,6 @@
       subroutine get_file_event(e_arm,th_spec_e,th_spec_p,
-     >    dxdz,dydz,e_mom,e_E,dxdzp,dydzp,p_mom,p_E,weight)
+     >    dxdz,dydz,e_mom,e_E,dxdzp,dydzp,p_mom,
+     >    targ_z, targ_zoffset, weight)
 c
 c  input variables:
 c        electron_arm : 1 means HMS is electron arm
@@ -31,6 +32,7 @@ c
          real*8 sth_elec,cth_elec,sth_prot,cth_prot
          real*8 e_mom,e_E,dxdz,dydz,e_vz,SHMS_vz,HMS_vz
          real*8 p_mom,p_E,dxdzp,dydzp,p_vz
+         real*8 targ_z, targ_zoffset
          real*8 w, weight
          character*80 multpifile
          integer count,count_miss
@@ -90,12 +92,20 @@ c --> the HMS is at negative angles, and the SHMS at positive angles
              e_4v(4) = SHMS_4v(4)
             p_4v(4) = HMS_4v(4)
            endif
+cc SIMC only knows of a single vertex position, so even though we read
+cc two values, we only use a single one (they should match anyway in
+cc most cases)
+         targ_z = HMS_vz * 1.
+         if(e_vz * p_vz .gt. 0) then
+           targ_z = e_vz + targ_zoffset
+         endif
 	       if(debug(5)) then
              write(*,*) ' '
              write(*,*) ' NEW EVENT: ',count, weight
-             write(*,*) '       e: ',e_4v(1),e_4v(2),e_4v(3),e_4v(4)
-             write(*,*) '      p: ',p_4v(1),p_4v(2),p_4v(3),p_4v(4)
+             write(*,*) '         e: ',e_4v(1),e_4v(2),e_4v(3),e_4v(4)
+             write(*,*) '         p: ',p_4v(1),p_4v(2),p_4v(3),p_4v(4)
              write(*,*) '    vertex: ',e_vz,p_vz
+             write(*,*) 'SIMC vertex: ',targ_z
 	       endif !debug
 cc Rotatation about the x-axis --> only y, and z change
          e_4vr(1) = e_4v(1)
