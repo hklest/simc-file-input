@@ -1,5 +1,5 @@
       subroutine get_file_event(e_arm,th_spec_e,th_spec_p,
-     >    dxdz,dydz,e_mom,e_E,dxdzp,dydzp,p_mom,
+     >    dxdz,dydz,e_mom,e_E,dxdzp,dydzp,p_mom,p_E,
      >    targ_z, targ_zoffset, weight)
 c
 c  input variables:
@@ -94,8 +94,6 @@ c --> the HMS is at negative angles, and the SHMS at positive angles
            endif
 cc SIMC only knows of a single vertex position, so even though we read
 cc two values, we only use a single one (they should match anyway in
-cc most cases)
-         targ_z = HMS_vz * 1.
          if(e_vz * p_vz .gt. 0) then
            targ_z = e_vz + targ_zoffset
          endif
@@ -120,10 +118,10 @@ cc Rotatation about the x-axis --> only y, and z change
              write(*,*) ' '
              write(*,*) '    SPEC:'
              write(*,*) '     e: ',th_spec_e/pi*180
-             write(*,*) '    p: ',th_spec_p/pi*180
+             write(*,*) '     p: ',th_spec_p/pi*180
              write(*,*) ' ROTATED: '
              write(*,*) '     e: ',e_4vr(1),e_4vr(2),e_4vr(3),e_4vr(4)
-             write(*,*) '    p: ',p_4vr(1),p_4vr(2),p_4vr(3),p_4vr(4)
+             write(*,*) '     p: ',p_4vr(1),p_4vr(2),p_4vr(3),p_4vr(4)
 	       endif !debug
 c Calculate dxdz and dydz
          e_mom = sqrt(e_4vr(1)**2 + e_4vr(2)**2 + e_4vr(3)**2)
