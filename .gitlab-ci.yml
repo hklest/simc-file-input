@@ -2,28 +2,16 @@ image: eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
 #image: whit2333/root_base:latest
 #
 
-singularity-build:
+simc_singularity:
   tags:
      - singularity
   script:
-    #- docker login eicweb.phy.anl.gov:4567 -u whit -p ${CI_IMAGE_BUILD_PAT}
-     - cp containers/singularity/Singularity .
+     - cp containers/singularity/Singularity Singularity.simc
      - /bin/bash .gitlabci/setup.sh
-     - /bin/bash .gitlabci/build.sh Singularity
-
-     - mkdir -p build && cp *.simg build
-     - mkdir -p build && cp Singularity* build
-
-      # Step 2. Take a look at "artifacts" below and add the paths you want added
-      # You can also add the entire build folder. You can also upload to storage
-      # clients defined by sregistry, here are some examples
-      # https://singularityhub.github.io/sregistry-cli/clients
-      # Environment variables must be defined in CI encrypted secrets/settings
-      # https://code.stanford.edu/help/ci/variables/README#variables).
-      #- /bin/bash build.sh --uri collection/container --cli google-storage Singularity
-      #- /bin/bash build.sh --uri collection/container --cli google-drive Singularity
-      #- /bin/bash build.sh --uri collection/container --cli globus Singularity
-      #- /bin/bash build.sh --uri collection/container --cli registry Singularity
+     - /bin/bash .gitlabci/build.sh Singularity.simc
+     - mkdir -p build 
+     - cp Singularity.simc.simg build/.
+     - cp Singularity.simc build/.
 
   # This is where you can save job artifacts
   # https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
@@ -31,5 +19,5 @@ singularity-build:
   # Don't forget to save your recipes too!
   artifacts:
       paths:
-        - build/Singularity.simg
-        - build/Singularity
+        - build/Singularity.simc.simg
+        - build/Singularity.simc
