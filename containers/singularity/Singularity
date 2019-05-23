@@ -13,7 +13,7 @@ From: eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
 %post -c /bin/bash
   echo "Constructing simc container"
   echo "1. ------------------------------------------"
-  echo "1. -- Building and installing SIMC
+  echo "1. -- Building and installing SIMC"
   echo "1. ------------------------------------------"
   source /usr/local/bin/thisroot.sh
   export PYTHONPATH=/usr/local/lib:$PYTHONPATH
