@@ -4,13 +4,7 @@
 ## PROJECT: SIMC (Cmake build with file input)
 ################################################################################
 cmake_minimum_required (VERSION 3.5)
-project (simc)
-set (SIMC_MAJOR_VERSION 0)
-set (SIMC_MINOR_VERSION 2)
-set (SIMC_PATCH_VERSION 0)
-set (SIMC_VERSION 
-  ${SIMC_MAJOR_VERSION}.${SIMC_MINOR_VERSION}.${SIMC_PATCH_VERSION})
-set (SIMC_SOVERSION ${SIMC_MAJOR_VERSION})
+project (simc VERSION 1.0.0)
 
 ################################################################################
 ## CMAKE Settings 
