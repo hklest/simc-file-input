@@ -96,5 +96,5 @@ with tempfile.TemporaryDirectory() as tmpdir:
     subprocess.call(['sh', run_name])
 print('\nConverting output to ROOT')
 os.chdir(output_dir)
-subprocess.call(['h2root', '{conf}.rzdat'.format(conf=tmp_conf_name))
+subprocess.call(['h2root', '{conf}.rzdat'.format(conf=tmp_conf_name)])
 print('All done!')
