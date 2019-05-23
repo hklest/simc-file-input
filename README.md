@@ -21,6 +21,16 @@ coincidence reactions, written in FORTRAN.
 
 ## Building This Version
 
+###Downloading singularity image (experimental)
+
+
+```
+wget \
+https://eicweb.phy.anl.gov/jlab/simc/-/jobs/artifacts/master/raw/build/Singularity.simc.simg?job=simc_singularity \
+-O Singularity.simc.simg
+```
+
+
 ### On your own machine
 1. Ensure you have the dependencies installed:
     1. gfortran
