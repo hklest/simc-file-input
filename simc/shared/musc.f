@@ -25,34 +25,21 @@ C-_____________________________________________________________________
 
 	implicit none
 
-	real*8 Es, epsilon
-	parameter (Es = 13.6)		!MeV
-	parameter (epsilon = 0.088)
+	real*8 musc_pdg, musc_with_tail
 
 	real*8 rad_len, dth, dph
-	real*8 beta, theta_sigma
-	real*8 m2, p
-
-	real*8 nsig_max
-	parameter(nsig_max=99.0e0)      !max #/sigma for gaussian ran #s.
-
-	real*8 gauss1
-
-! Compute scattering angles, THETA_SCAT from a gaussian distribution,
-! PHI_SCAT from uniform distribution.
+	real*8 beta, m2, p
 
 	if (rad_len.eq.0) return
 	if (p.lt.25.) write(6,*)
      >		'Momentum passed to musc.f should be in MeV, but p=',p
 
-	beta = p / sqrt(m2+p*p)
-c	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len))
-c Better form for beta .ne. 1
-	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len/beta**2))
-
 ! Compute new trajectory angles (units are rad)
 
-	dth = dth + theta_sigma * gauss1(nsig_max)
-	dph = dph + theta_sigma * gauss1(nsig_max)
+	beta = p / sqrt(m2+p*p)
+
+	dth = dth + musc_with_tail(beta, p, rad_len)
+	dph = dph + musc_with_tail(beta, p, rad_len)
+
 	return
 	end

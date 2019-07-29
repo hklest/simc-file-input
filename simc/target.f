@@ -549,30 +549,21 @@ C the perfect range, but it's easier than reproducing the generated limits here
 
 	implicit none
 
-	real*8 Es, epsilon, nsig_max
+	real*8 musc_pdg, musc_with_tail
+
+	real*8 p, beta, teff, dangles(2)
+	real*8 dangle, r, theta_sigma, nsig_max
+	real*8 Es, epsilon
 	parameter (Es = 13.6)		!MeV
 	parameter (epsilon = 0.088)
-	parameter (nsig_max = 3.5)
-
-	real*8 p, beta, teff, dangles(2), dangle, r
-	real*8 theta_sigma
-	real*8 gauss1
+	parameter(nsig_max=99.0e0)
 
 	if (p.lt.25.) write(6,*)
      >		'Momentum passed to target_musc should be in MeV, but p=',p
 
-! Compute rms value for planar scattering angle distribution, cf. PDB
-! Note teff is thickness of material, in radiation lengths.
 
-c	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
-C Better form for beta .ne. 1, from Lynch and Dahl, NIM B58 (1991) p.6-10, Eqn. 6
-	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff/beta**2))
-
-! Compute scattering angles in perpendicular planes.
-! Generate two Gaussian numbers BELOW nsig_max.
-
-	dangles(1) = theta_sigma * gauss1(nsig_max)
-	dangles(2) = theta_sigma * gauss1(nsig_max)
+	dangles(1) = musc_with_tail(beta, p, teff)
+	dangles(2) = musc_with_tail(beta, p, teff)
 
 	return
 

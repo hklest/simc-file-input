@@ -15,13 +15,9 @@ C-_____________________________________________________________________
 	parameter (epsilon = 0.088)
 
 	real*8 rad_len, x_len, dth, dph, x, y
-	real*8 beta, g1, g2, theta_sigma
+	real*8 beta, rx1, rx2, ry1, ry2
 	real*8 m2, p
-
-	real*8 nsig_max
-	parameter(nsig_max=99.0e0)      !max #/sigma for gaussian ran #s.
-
-	real*8 gauss1
+	real*8 musc_pdg, musc_with_tail
 
 	if (rad_len.eq.0) return
 	if (x_len.le.0 .or. rad_len.lt.0) then
@@ -33,22 +29,18 @@ C-_____________________________________________________________________
 	if (p.lt.10.) write(6,*)
      >    'Momentum passed to musc_ext.f should be in MeV, but p=',p
 
-	beta = p / sqrt(m2+p*p)
-c	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len))
-C Better form for beta .ne. 1
-	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len/beta**2))
-
 ! Compute new trajectory angles and displacements (units are rad and cm)
+	beta = p / sqrt(m2+p*p)
 
-	g1 = gauss1(nsig_max)	! gaussian, truncated at 99 sigma
-	g2 = gauss1(nsig_max)
-	dth = dth + theta_sigma*g1
-	x   = x   + theta_sigma*x_len*g2/sqrt(12.) + theta_sigma*x_len*g1/2.
+	rx1 = musc_with_tail(beta, p, rad_len)	
+	rx2 = musc_with_tail(beta, p, rad_len)	
+	ry1 = musc_with_tail(beta, p, rad_len)	
+	ry2 = musc_with_tail(beta, p, rad_len)	
 
-	g1 = gauss1(nsig_max)	! gaussian, truncated at 99 sigma
-	g2 = gauss1(nsig_max)
-	dph = dph + theta_sigma*g1
-	y   = y   + theta_sigma*x_len*g2/sqrt(12.) + theta_sigma*x_len*g1/2.
+	dth = dth + rx1
+	x   = x   + rx2*x_len/sqrt(12.) + rx1*x_len/2.
+	dph = dph + ry1
+	y   = y   + ry2*x_len/sqrt(12.) + ry1*x_len/2.
 
 	return
 	end
