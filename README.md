@@ -26,7 +26,7 @@ coincidence reactions, written in FORTRAN.
 
 ```
 wget \
-https://eicweb.phy.anl.gov/jlab/simc/-/jobs/artifacts/master/raw/build/Singularity.simc.simg?job=simc_singularity \
+https://eicweb.phy.anl.gov/jlab/simc-file-input/-/jobs/artifacts/master/raw/build/Singularity.simc.simg\?job\=simc_singularity \
 -O Singularity.simc.simg
 ```
 
