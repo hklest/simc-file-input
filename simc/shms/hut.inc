@@ -65,9 +65,12 @@ C Ar/neo Cherenkov entrance foil, Tedlar ( update from D. Day spreadsheet Feb 20
 	real*8 hcer_entr_radlen,hcer_entr_thick
 	parameter (hcer_entr_radlen = 19.63)
 	parameter (hcer_entr_thick  = 0.002*2.54)
-C Ar/neo Cherenkov, for now 100% argon
+C Ar/neo Cherenkov, set to 100% N2 for J/psi
 	real*8 hcer_1_radlen
-	parameter (hcer_1_radlen = 11700.0)
+C	old Argon number for now 100% argon
+C	parameter (hcer_1_radlen = 11700.0)
+C	100% N2
+	parameter (hcer_1_radlen = 32600.0)
 C Ar/neo Cherenkov mirror, SiO2 , no backing
 	real*8 hcer_mirglass_radlen,hcer_mirglass_thick
 	parameter (hcer_mirglass_radlen = 12.29)
