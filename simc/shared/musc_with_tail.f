@@ -34,7 +34,7 @@ C-_____________________________________________________________________
 ! This factor adjust the total extra tail width of the wide gaussian
 ! --> 1.15 to 1.2 works well for the HRS spectrometers. Adjust as
 ! needed.
-	parameter(tail_factor=1.2)
+	parameter(tail_factor=1.0)
 
 ! Start out by calculating theta_sigma as in musc_pdg
 	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len/beta**2))
