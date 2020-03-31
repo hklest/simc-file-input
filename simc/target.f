@@ -19,11 +19,11 @@
 	s_Al = 0.0
 	liquid = targ%Z.lt.2.4
 
-	if (abs(zpos) .gt. (targ%length/2.+1.e-5)) then
-	  write(6,*) 'call to trip_thru_target has |zpos| > targ.length/2.'
-	  write(6,*) 'could be numerical error, or could be error in target offset'
-	  write(6,*) 'zpos=',zpos,'  targ%length/2.=',targ%length/2.
-	endif
+C	if (abs(zpos) .gt. (targ%length/2.+1.e-5)) then
+C	  write(6,*) 'call to trip_thru_target has |zpos| > targ.length/2.'
+C	  write(6,*) 'could be numerical error, or could be error in target offset'
+C	  write(6,*) 'zpos=',zpos,'  targ%length/2.=',targ%length/2.
+C	endif
 ! Which particle are we interested in?
 
 	goto (10,20,30) narm
