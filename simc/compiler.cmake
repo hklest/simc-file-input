@@ -11,7 +11,8 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${gfortran_EXTRA_FLAGS}")
   set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} ${gfortran_EXTRA_FLAGS}")
   set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "${CMAKE_Fortran_FLAGS_RELWITHDEBINFO} ${gfortran_EXTRA_FLAGS}")
-
+## gcc10 optimization
+  set (gfortran_EXTRA_FLAGS "${gfortran_EXTRA_FLAGS} -fallow-argument-mismatch -fallow-invalid-boz")
 ## g77
 elseif (Fortran_COMPILER_NAME MATCHES "g77.*")
 

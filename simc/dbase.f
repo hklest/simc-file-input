@@ -193,6 +193,9 @@ C DJG:
         else if (doing_positron) then
 	   Mh = Me
 	   doing_eep=.false.
+        else if (doing_muons) then
+	   Mh = Mmu
+	   doing_eep=.false.
 	else		!doing_eep if nothing else set.
 	  Mh=Mp
 	  doing_eep = .true.
@@ -304,7 +307,7 @@ C DJG:
 	      sign_hadron=-1.0
 	   endif
 
-	else if(doing_positron) then
+	else if(doing_positron.or.doing_muons) then
 	   targ%Mtar_struck = Mp
 	   targ%Mrec_struck = Mp
 
@@ -776,6 +779,8 @@ C DJG:
 	   endif
 	else if (doing_positron) then
 	  write(6,*) ' ****--------  Doing positron  --------****'
+	else if (doing_muons) then
+	  write(6,*) ' ****--------  Doing muon  --------****'
 	else if (doing_phsp) then
 	  write(6,*) ' ****--------  PHASE SPACE - NO physics, NO radiation  --------****'
 	else
@@ -894,6 +899,7 @@ C DJG:
 	ierr = regparmint('doing_2pi',doing_2pi,0)
 	ierr = regparmint('doing_rho',doing_rho,0)
 	ierr = regparmint('doing_positron',doing_positron,0)
+	ierr = regparmint('doing_muons',doing_muons,0)
 	ierr = regparmint('doing_decay',doing_decay,0)
 	ierr = regparmdouble('ctau',ctau,0)
 

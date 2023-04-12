@@ -68,8 +68,8 @@
 	logical doing_hyd_elast, doing_deuterium, doing_heavy
 	logical doing_eep, doing_pion, doing_delta, doing_2pi, doing_kaon, doing_rho
 	logical doing_semi, doing_semipi, doing_semika, doing_hplus
-	logical doing_positron
-	integer*4 which_kaon, which_pion
+	logical doing_positron, doing_muons
+	integer*4 padding, which_kaon, which_pion
 	logical using_cit_generation, using_Coulomb, using_Eloss
 	logical correct_Eloss, correct_raster,do_fermi
 	logical using_tgt_field
@@ -92,10 +92,11 @@
      >    extra_dbase_file,tgt_field_file,using_E_arm_montecarlo,using_P_arm_montecarlo,
      >    doing_phsp, using_rad, hard_cuts, doing_hyd_elast, doing_deuterium, doing_heavy,
      >    doing_eep, doing_pion, doing_delta, doing_2pi, doing_kaon, doing_rho, doing_semi,doing_positron,
+     >    doing_muons, 
      >    doing_semipi, doing_semika, doing_hplus, which_kaon,
      >    which_pion, using_cit_generation, using_Coulomb, using_Eloss,
      >    correct_Eloss, correct_raster, do_fermi,using_tgt_field,
-     >    electron_arm, hadron_arm, use_first_cer,
+     >    electron_arm, hadron_arm, use_first_cer, padding,
      >    transparency, use_benhar_sf, random_state_file, random_seed
 
 ! ........ note: make these first two parameters at least ONE BIGGER than the actual dimensions you want to read in

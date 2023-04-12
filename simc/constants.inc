@@ -9,12 +9,14 @@
 !	All roads lead to infinity
 
 ! ... some physical constants
-	real*8 Me, Me2, Mp, Mp2, Mn, Mn2, Mpi, Mpi2, Mpi0, Mpi02
+	real*8 Me, Me2, Mmu, Mmu2, Mp, Mp2, Mn, Mn2, Mpi, Mpi2, Mpi0, Mpi02
 	real*8 Mk, Mk2, Mrho, Mrho2,Md, Md2
 	real*8 Mlambda, Msigma0, Msigma_minus
 	real*8 amu, hbarc, pi, twopi, alpha, alpi, degrad, euler
 	parameter (Me=0.51099906)
 	parameter (Me2=Me**2)
+	parameter (Mmu=113.4289257)
+	parameter (Mmu2=Mmu**2)
 	parameter (Mp=938.27231)
 	parameter (Mp2=Mp**2)
 	parameter (Mn=939.56563)

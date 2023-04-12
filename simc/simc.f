@@ -795,6 +795,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  write(iun,*) '              ****--- PHASE SPACE - NO physics, NO radiation (may not work)---****'
 	else if (doing_positron) then
 	  write(iun,*) '              ****--- doing positron****'
+	else if (doing_muons) then
+	  write(iun,*) '              ****--- doing muons****'
 	else
 	  stop 'I don''t have ANY idea what we''re doing!!!'
 	endif
