@@ -1321,6 +1321,7 @@ c	enddo
 	real*8 eloss_E_arm, eloss_P_arm, r, beta, dangles(2), dang_in(2)
 	logical success
 	logical ok_E_arm, ok_P_arm
+	logical ms_flag, wcs_flag !Mult. scat. and wire chamber smearing
 	type(event):: orig, recon
 	type (event_main)::	main
 
@@ -1352,6 +1353,11 @@ c	enddo
 	  frx = 0.0
 	endif
 
+! Disable multiple scattering for muons, but not the wire chamber
+! smearing
+      ms_flag = mc_smear .and. (.not. doing_muons)
+      wcs_flag = mc_smear
+
 !BEAM MULTIPLE SCATTERING:  NOT YET IMPLEMENTED, JUST GETTING IT READY!
 
 ! ... multiple scattering of the beam.  Generate angles for beam deflection,
@@ -1359,7 +1365,7 @@ c	enddo
 ! ... The yptar offset goes directly to yptar of both arms (small angle approx).
 ! ... xptar is multiplied by cos(theta) to get the xptar offsets.
 
-	if (mc_smear) then
+	if (ms_flag) then
 	  call target_musc(orig%Ein,beta_electron,main%target%teff(1),dang_in)
 	else
 	  dang_in(1)=0.0	!yp offset, goes directly to yp of both arms
@@ -1386,7 +1392,7 @@ c	enddo
 
 ! ... multiple scattering
 
-	if (mc_smear) then
+	if (ms_flag) then
 	  beta = orig%p%p/orig%p%E
 	  call target_musc(orig%p%p, beta, main%target%teff(3), dangles)
 	else
@@ -1468,27 +1474,27 @@ C DJG moved this to the last part of generate!!!
 	  if (hadron_arm.eq.1) then
 	    call mc_hms(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
-     >		m2, mc_smear, mc_smear, doing_decay,
+     >		m2, ms_flag, wcs_flag, doing_decay,
      >		ntup%resfac, fry, ok_P_arm, pathlen)
 	  else if (hadron_arm.eq.2) then
 	    call mc_sos(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
-     >		m2, mc_smear, mc_smear, doing_decay,
+     >		m2, ms_flag, wcs_flag, doing_decay,
      >		ntup%resfac, fry, ok_P_arm, pathlen)
 	  else if (hadron_arm.eq.3) then
 	    call mc_hrsr(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
-     >		m2, mc_smear, mc_smear, doing_decay,
+     >		m2, ms_flag, wcs_flag, doing_decay,
      >		ntup%resfac, fry, ok_P_arm, pathlen)
 	  else if (hadron_arm.eq.4) then
 	    call mc_hrsl(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
-     >		m2, mc_smear, mc_smear, doing_decay,
+     >		m2, ms_flag, wcs_flag, doing_decay,
      >		ntup%resfac, fry, ok_P_arm, pathlen)
 	  else if (hadron_arm.eq.5 .or. hadron_arm.eq.6) then
 	    call mc_shms(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
-     >		m2, mc_smear, mc_smear, doing_decay,
+     >		m2, ms_flag, wcs_flag, doing_decay,
      >		ntup%resfac, fry, ok_P_arm, pathlen, hadron_arm, use_first_cer)
 	  endif
 
@@ -1580,7 +1586,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 
 ! ... multiple scattering
 
-	if (mc_smear) then
+	if (mc_smear .and. (.not. doing_muons)) then
 	  call target_musc(orig%e%p, beta_electron, main%target%teff(2), dangles)
 	else
 	  dangles(1)=0.0
@@ -1647,31 +1653,34 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 !	ok flag
 
 	  m2 = me2
+          if (doing_muons) then
+             m2 = Mmu2
+          endif
 	  pathlen = 0.0
 	  if (electron_arm.eq.1) then
 	    call mc_hms(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
-     >		me2, mc_smear, mc_smear, .false.,
+     >		m2, ms_flag, wcs_flag, .false.,
      >		tmpfact, fry, ok_E_arm, pathlen)
 	  else if (electron_arm.eq.2) then
 	    call mc_sos(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
-     >		me2, mc_smear, mc_smear, .false.,
+     >		m2, ms_flag, wcs_flag, .false.,
      >		tmpfact, fry, ok_E_arm, pathlen)
 	  else if (electron_arm.eq.3) then
 	    call mc_hrsr(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
-     >		me2, mc_smear, mc_smear, .false.,
+     >		m2, ms_flag, wcs_flag, .false.,
      >		tmpfact, fry, ok_E_arm, pathlen)
 	  else if (electron_arm.eq.4) then
 	    call mc_hrsl(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
-     >		me2, mc_smear, mc_smear, .false.,
+     >		m2, ms_flag, wcs_flag, .false.,
      >		tmpfact, fry, ok_E_arm, pathlen)
 	  else if (electron_arm.eq.5 .or. electron_arm.eq.6) then
 	    call mc_shms(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
-     >		me2, mc_smear, mc_smear, .false.,
+     >		m2, ms_flag, wcs_flag, .false.,
      >		tmpfact, fry, ok_E_arm, pathlen, electron_arm, use_first_cer)
 	  else if (electron_arm.eq.7 .or. electron_arm .eq. 8) then
              if (abs(spec%p%phi-pi/2) .eq. 10.) then
@@ -1681,7 +1690,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	     endif
 	    call mc_calo(spec%e%p, spec%e%theta, delta_e_arm, x_e_arm,
      >		y_e_arm, z_e_arm, dx_e_arm, dy_e_arm, xfp, dxfp, yfp, dyfp,
-     >		m2, mc_smear, mc_smear, doing_decay,
+     >		m2, ms_flag, wcs_flag, doing_decay,
      >		ntup%resfac, frx, fry, ok_e_arm, pathlen, using_tgt_field,
      >          zhadron,electron_arm,drift_to_cal)
 	  endif
