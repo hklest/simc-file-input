@@ -2,11 +2,8 @@ image: eicweb.phy.anl.gov:4567/containers/image_recipes/ubuntu_dind:latest
 #
 
 simc_singularity:
-  tags:
-     - singularity
   script:
      - cp containers/singularity/Singularity Singularity.simc
-     #- /bin/bash .gitlabci/setup.sh
      - /bin/bash .gitlabci/build.sh Singularity.simc
      - mkdir -p build 
      - cp Singularity.simc.simg build/.
