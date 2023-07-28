@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
+From: eicweb.phy.anl.gov:4567/containers/image_recipes/root_base:latest
 
 %help
   Container for file-input simc
