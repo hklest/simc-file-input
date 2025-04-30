@@ -1409,7 +1409,7 @@ c	enddo
 ! ... change to P arm spectrometer coordinates (TRANSPORT system),
 
 	  if (abs(cos(spec%p%phi)).gt.0.0001) then  !phi not at +/- pi/2
-	    write(6,*) 'y_P_arm, z_P_arm will be incorrect if spec.p.phi <> pi/2 or 3*pi/2'
+	    write(6,*) 'y_P_arm, z_P_arm is incorrect if spec.p.phi <> pi/2 or 3pi/2'
 	    write(6,*) 'spec%p%phi=',spec%p%phi,'=',spec%p%phi*180/pi,'degrees'
 	  endif
 	  delta_P_arm = main%SP%p%delta
@@ -1586,12 +1586,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 
 ! ... multiple scattering
 
-	if (mc_smear .and. (.not. doing_muons)) then
-	  call target_musc(orig%e%p, beta_electron, main%target%teff(2), dangles)
-	else
-	  dangles(1)=0.0
-	  dangles(2)=0.0
-	endif
+	call target_musc(orig%e%p, beta_electron, main%target%teff(2), dangles)
 
 	main%SP%e%yptar = orig%e%yptar + dangles(1) + dang_in(1)
 	main%SP%e%xptar = orig%e%xptar + dangles(2) + dang_in(2)*spec%e%cos_th
@@ -1603,7 +1598,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 ! ... change to E arm spectrometer coordinates (TRANSPORT system),
 
 	  if (abs(cos(spec%e%phi)).gt.0.0001) then  !phi not at +/- pi/2
-	    write(6,*) 'y_E_arm, z_E_arm will be incorrect if spec.e.phi <> pi/2 or 3*pi/2'
+	    write(6,*) 'y_E_arm, z_E_arm is incorrect if spec.e.phi <> pi/2 or 3*pi/2'
 	    write(6,*) 'spec.e.phi=',spec%e%phi,'=',spec%e%phi*180/pi,'degrees'
 	  endif
 	  delta_E_arm = main%SP%e%delta

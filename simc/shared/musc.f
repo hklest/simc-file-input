@@ -2,7 +2,7 @@
 C+_____________________________________________________________________
 !
 ! MUSC - Simulate multiple scattering of any particle.
-!
+! 
 ! ASSUMPTIONS: DTH and DPH given in milli-radians, RAD_LEN in radiation
 !   lengths. The formula used is due to Rossi and Greisen (See the book
 !   by Segre, NUCLEI AND PARTICLES, 1982, p. 48.) The formula assumes a
@@ -24,11 +24,13 @@ C+_____________________________________________________________________
 C-_____________________________________________________________________
 
 	implicit none
+	include '../simulate.inc'
 
 	real*8 musc_pdg, musc_with_tail
 
 	real*8 rad_len, dth, dph
 	real*8 beta, m2, p
+	logical heavy_tail
 
 	if (rad_len.eq.0) return
 	if (p.lt.25.) write(6,*)
@@ -38,8 +40,13 @@ C-_____________________________________________________________________
 
 	beta = p / sqrt(m2+p*p)
 
-	dth = dth + musc_with_tail(beta, p, rad_len)
-	dph = dph + musc_with_tail(beta, p, rad_len)
+	if (doing_positron)
+	  dth = dth + musc_with_tail(beta, p, rad_len)
+	  dph = dph + musc_with_tail(beta, p, rad_len)
+	else
+	  dth = dth + musc_pdg(beta, p, rad_len)
+	  dph = dph + musc_pdg(beta, p, rad_len)
+	endif
 
 	return
 	end
