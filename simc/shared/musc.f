@@ -40,7 +40,7 @@ C-_____________________________________________________________________
 
 	beta = p / sqrt(m2+p*p)
 
-	if (doing_positron)
+	if (doing_positron) then
 	  dth = dth + musc_with_tail(beta, p, rad_len)
 	  dph = dph + musc_with_tail(beta, p, rad_len)
 	else

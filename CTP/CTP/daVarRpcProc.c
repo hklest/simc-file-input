@@ -154,7 +154,7 @@ RVALLIST *davar_readmultiple_1(NAMELIST *argp, CLIENT *clnt)
     }
     free(result.RVALLIST_val);
 #else
-    xdr_free(xdr_RVALLIST, (void *) &result);
+    xdr_free((xdrproc_t)xdr_RVALLIST, (void *) &result);
 #endif
   } else need_to_free = 1;
 /*  minfo = mallinfo();
@@ -180,7 +180,7 @@ ERRLIST *davar_writemultiple_1(WVALLIST *argp, CLIENT *clnt)
   static ERRLIST result;
   int i;
 
-  xdr_free(xdr_ERRLIST, (void *) &result);
+  xdr_free((xdrproc_t)xdr_ERRLIST, (void *) &result);
 
   result.ERRLIST_len = argp->WVALLIST_len;
   result.ERRLIST_val = (int *) malloc(result.ERRLIST_len*sizeof(any));
@@ -285,7 +285,7 @@ davar_readmultiple_test_cb_1(argp, clnt)
 #endif
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
-	if ((clnt_stat = clnt_call(clnt, DAVAR_READMULTIPLE_TEST_CB, xdr_RVALLIST, argp, xdr_int, &clnt_res, TIMEOUT)) != RPC_SUCCESS) {
+	if ((clnt_stat = clnt_call(clnt, DAVAR_READMULTIPLE_TEST_CB, (xdrproc_t)xdr_RVALLIST, argp, (xdrproc_t)xdr_int, &clnt_res, TIMEOUT)) != RPC_SUCCESS) {
 	  printf("clnt call failed, clnt_stat = %d\n",clnt_stat);
 	  clnt_perrno(clnt_stat);
 		return (NULL);
@@ -319,7 +319,7 @@ WVALLIST *davar_readpatternmatch_1(char **argp, CLIENT *clnt)
     }
     free(result.WVALLIST_val);
 #else
-    xdr_free(xdr_WVALLIST, (void *) &result);
+    xdr_free((xdrproc_t)xdr_WVALLIST, (void *) &result);
 #endif
   } else need_to_free = 1;
 /*  minfo = mallinfo();
@@ -439,9 +439,9 @@ int daVarCallBack()
       free(argp->test_condition);
 #else
       if(testresult) {
-	xdr_free(xdr_RVALLIST, (void *) &rpc);
+	xdr_free((xdrproc_t)xdr_RVALLIST, (void *) &rpc);
       }
-      xdr_free(xdr_TESTNAMELIST, (void *) argp);
+      xdr_free((xdrproc_t)xdr_TESTNAMELIST, (void *) argp);
 #endif
       free(argp);
       free(this->sock_in);

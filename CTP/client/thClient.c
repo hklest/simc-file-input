@@ -84,7 +84,7 @@ FCALLSCFUN1(INT,thPrintList,THPRTLIST,thprtlist,INT);
 /* Don't really understand the following.  What about ultrix?
    This is probably because of the _ in clnt_create */
 #ifndef __osf__
-FCALLSCFUN4(INT,clnt_create,CLNT_CREATE,clnt_create,STRING,INT,INT,STRING);
+FCALLSCFUN4(INT,myClntCreate,CLNT_CREATE,clnt_create,STRING,INT,INT,STRING);
 #else
 #ifdef BIT64
 FCALLSCFUN4(INT,myClntCreate,CLNT_CREATE,clnt_create,STRING,INT,INT,STRING);
