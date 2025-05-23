@@ -49,7 +49,7 @@ tmp_data_path = os.path.basename(data_path)
 tmp_conf_path = os.path.basename(conf_path)
 tmp_conf_name, tmp_conf_ext = os.path.splitext(tmp_conf_path)
 ## make sure our tmp_conf_path ends on '.inp'
-if tmp_conf_ext is '.inp':
+if tmp_conf_ext == '.inp':
     pass
 else:
     tmp_conf_path = '{}.inp'.format(tmp_conf_name)
