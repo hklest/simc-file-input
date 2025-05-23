@@ -66,6 +66,7 @@ ADD_CUSTOM_COMMAND(
 ################################################################################
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(SYSTEM /usr/include/tirpc)
 
 ################################################################################
 ## Compile and Link
@@ -76,6 +77,7 @@ ${RPC_SVC_SOURCE} ${RPC_XDR_SOURCE} ${RPC_HEADER})
 set_target_properties(${LIBRARY} PROPERTIES 
   VERSION ${PROJECT_VERSION} 
   SOVERSION ${PROJECT_VERSION_MAJOR})
+set_property(TARGET ${LIBRARY} PROPERTY C_STANDARD 11)
 
 add_library(${CLIENT_LIBRARY} STATIC 
 	${CLIENT_SOURCES} 
@@ -83,8 +85,10 @@ add_library(${CLIENT_LIBRARY} STATIC
 set_target_properties(${CLIENT_LIBRARY} PROPERTIES 
   VERSION ${PROJECT_VERSION} 
   SOVERSION ${PROJECT_VERSION_MAJOR})
+set_property(TARGET ${CLIENT_LIBRARY} PROPERTY C_STANDARD 11)
 
 add_executable(${PROGRAM} ${MAKEREG_SOURCES})
+set_property(TARGET ${PROGRAM} PROPERTY C_STANDARD 11)
 target_link_libraries(${PROGRAM} 
 	${CLIENT_LIBRARY} ${LIBRARY} 
 	${CLIENT_LIBRARY} ${LIBRARY} 
