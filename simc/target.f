@@ -37,7 +37,9 @@ C	endif
 	    s_Al = s_Al + 0.0028*inch_cm
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 	    s_Al = s_Al + 0.0050*inch_cm
-	  else if (targ%can .eq. 3) then	!cryo2017 10cm
+	  else if (targ%can .eq. 3) then	!cryo2017 10 cm
+	     s_Al = s_Al + 0.005*inch_cm
+	  else if (targ%can .eq. 4) then        !cryo2017 15 cm
 	     s_Al = s_Al + 0.005*inch_cm
 	  endif
 	endif
@@ -142,7 +144,27 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	       stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  else if (targ%can .eq. 3) then	!cry02017 10cm
+	  else if (targ%can .eq. 3) then	!cryo2017 10 cm
+            ecir=1.315*2.54           ! endcap inner radius (cm)
+            ecor=1.320*2.54           ! endcap outer radius (cm)
+            entec=targ%length-ecir        ! entrance to end cap (cm)
+            twall = (ecor-ecir)    !  Al wall
+	    
+	    tcm = (targ%length/2. + zpos)
+            if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
+               s_target=ecir/sin(targ%angle)   ! liquid target
+               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+            else
+               s_target=                              ! e goes throught end cap
+     >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
+
+              s_Al=   s_Al+                        ! wall
+     >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
+     >    *twall/(ecor-ecir)                   ! & end cap
+        endif
+	  else if (targ%can .eq. 4) then	!cryo2017 15 cm
             ecir=1.315*2.54           ! endcap inner radius (cm)
             ecor=1.320*2.54           ! endcap outer radius (cm)
             entec=targ%length-ecir        ! entrance to end cap (cm)
@@ -263,7 +285,27 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	      stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  else if (targ%can .eq. 3) then	!cry02017 10cm
+	  else if (targ%can .eq. 3) then	!cryo2017 10 cm
+            ecir=1.315*2.54           ! endcap inner radius (cm)
+            ecor=1.320*2.54           ! endcap outer radius (cm)
+            entec=targ%length-ecir        ! entrance to end cap (cm)
+            twall = (ecor-ecir)    !  Al wall
+	    
+	    tcm = (targ%length/2. + zpos)
+            if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
+               s_target=ecir/sin(targ%angle)   ! liquid target
+               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+            else
+               s_target=                              ! e goes throught end cap
+     >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
+
+              s_Al=   s_Al+                        ! wall
+     >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
+     >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
+     >    *twall/(ecor-ecir)                   ! & end cap
+        endif
+	  else if (targ%can .eq. 4) then	!cryo2017 15 cm
             ecir=1.315*2.54           ! endcap inner radius (cm)
             ecor=1.320*2.54           ! endcap outer radius (cm)
             entec=targ%length-ecir        ! entrance to end cap (cm)
@@ -324,7 +366,7 @@ c	      stop
 	integer	i
 	real*8 th_corner, th_corner_min, th_corner_max
 	real*8 E1, E2, E3, E4, t1, t2, t3, t4
-	real*8 zz, th1, th2, m
+        real*8 zz, th1, th2, th_try, m
 	real*8 ebeam, energymin, energymax
 	logical	liquid
 
@@ -424,7 +466,28 @@ C the perfect range, but it's easier than reproducing the generated limits here
 	      targ%teff(2)%min = t1
 	    endif
 	  enddo
-	endif
+        endif
+
+        if (liquid .and. (targ%can .eq. 3 .or. targ%can .eq. 4)) then
+          targ%Eloss(2)%max = -1.d30
+          targ%teff(2)%max = -1.d30
+          targ%Eloss(2)%min = 1.d30
+          targ%teff(2)%min = 1.d30
+          do i = 0, 3
+            zz = z%min+int(i/2)*(z%max-z%min)
+            th_try = the%min+mod(i,2)*(the%max-the%min)
+            call trip_thru_target(2, zz, energymax, th_try, E1, t1, Me, 3)
+            if (E1 .gt. targ%Eloss(2)%max) then
+              targ%Eloss(2)%max = E1
+              targ%teff(2)%max = t1
+            endif
+            call trip_thru_target(2, zz, energymin, th_try, E2, t2, Me, 2)
+            if (E2 .lt. targ%Eloss(2)%min) then
+              targ%Eloss(2)%min = E2
+              targ%teff(2)%min = t2
+            endif
+          enddo
+        endif
 
 ! Scattered proton. As you can see I'm sufficiently lazy to make
 ! the code work out whether high or low beta
@@ -523,7 +586,38 @@ C the perfect range, but it's easier than reproducing the generated limits here
 	  call trip_thru_target (3, zz, energymax, th1, E1, t1, m, 2)
 	  targ%Eloss(3)%min = min(targ%Eloss(3)%min, E1)
 
-	endif
+        endif
+
+        if (liquid .and. (targ%can .eq. 3 .or. targ%can .eq. 4)) then
+          targ%Eloss(3)%max = -1.d30
+          targ%teff(3)%max = -1.d30
+          targ%Eloss(3)%min = 1.d30
+          targ%teff(3)%min = 1.d30
+          do i = 0, 3
+            zz = z%min+int(i/2)*(z%max-z%min)
+            th_try = thp%min+mod(i,2)*(thp%max-thp%min)
+            call trip_thru_target (3, zz, energymin, th_try, E1, t1, m, 3)
+            if (E1 .gt. targ%Eloss(3)%max) then
+              targ%Eloss(3)%max = E1
+              targ%teff(3)%max = t1
+            endif
+            call trip_thru_target (3, zz, energymax, th_try, E2, t2, m, 3)
+            if (E2 .gt. targ%Eloss(3)%max) then
+              targ%Eloss(3)%max = E2
+              targ%teff(3)%max = t2
+            endif
+            call trip_thru_target (3, zz, energymin, th_try, E3, t3, m, 2)
+            if (E3 .lt. targ%Eloss(3)%min) then
+              targ%Eloss(3)%min = E3
+              targ%teff(3)%min = t3
+            endif
+            call trip_thru_target (3, zz, energymax, th_try, E4, t4, m, 2)
+            if (E4 .lt. targ%Eloss(3)%min) then
+              targ%Eloss(3)%min = E4
+              targ%teff(3)%min = t4
+            endif
+          enddo
+        endif
 
 *JRA*! Extreme multiple scattering
 *JRA*
