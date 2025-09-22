@@ -54,9 +54,10 @@
 	call regallvars
 
 ! ... Set some defaults
-	use_benhar_sf = .false.
-	random_state_file = ' '
-	random_seed = 0
+        use_benhar_sf = .false.
+        random_state_file = ' '
+        random_seed = 0
+        apply_target_material = .true.
 
 ! ... read the dbase file.
 
@@ -419,7 +420,7 @@ C DJG:
 	    targ%angle = 0.0
 	    write(6,*) 'Forcing target angle to zero for cryotarget.'
 	  endif
-	  if (.not.(targ%can .ge. 1 .and. targ%can.le.3)) stop 'bad targ.can value'
+          if (.not.(targ%can .ge. 1 .and. targ%can.le.4)) stop 'bad targ.can value (allowed 1-4 for cryotargets)'
 	endif
 	if(sin(targ%angle) .gt. 0.85) then
 	  write(6,*) 'BAD targ.angle (0 is perp. to beam, +ve is rotated towards SOS)'
@@ -847,7 +848,8 @@ C DJG:
 	if (.not.using_rad) write(6,*) 'NOTE: Will NOT be applying radiative corrections'
 	if (.not.using_E_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the E arm Monte Carlo'
 	if (.not.using_P_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the P arm Monte Carlo'
-	if (.not.using_Eloss) write(6,*) 'NOTE: Will NOT be calculating energy loss in the target'
+        if (.not.using_Eloss) write(6,*) 'NOTE: Will NOT be calculating energy loss in the target'
+        if (.not.apply_target_material) write(6,*) 'NOTE: Target material disabled; only chamber and window materials remain'
 	if (.not.using_Coulomb) write(6,*) 'NOTE: Will NOT be calculating Coulomb correction (default for Hydrogen target)'
 	if (using_Coulomb) write(6,*) 'NOTE: WILL be calculating Coulomb corrections. 
      >             Implmemented for beam and scattered electron only!'
@@ -874,7 +876,8 @@ C DJG:
 *	RESTSW
 
 	if (debug(2)) write(6,*)'regallvars: entering'
-	ierr = regparmint('mc_smear',mc_smear,0)
+        ierr = regparmint('mc_smear',mc_smear,0)
+        ierr = regparmint('apply_target_material',apply_target_material,0)
 	ierr = regparmint('electron_arm',electron_arm,0)
 	ierr = regparmint('hadron_arm',hadron_arm,0)
 	ierr = regparmint('use_first_cer',use_first_cer,0)

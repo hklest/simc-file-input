@@ -10,13 +10,15 @@
 	real*8 Eloss, radlen
 	real*8 forward_path, side_path
 	real*8 s_target, s_Al, s_kevlar, s_air, s_mylar	! distances travelled
+	real*8 s_Al_target, s_target_used, s_Al_target_used, s_Al_total
 	real*8 Eloss_target, Eloss_Al,Eloss_air		! energy losses
 	real*8 Eloss_kevlar,Eloss_mylar			! (temporary)
 	real*8 z_can,t,atmp,btmp,ctmp,costmp,th_can	!for the pudding-can target.
 	real*8 ecir,ecor,entec,twall,tcm
-	logical liquid
+	logical liquid, target_material_active
 
 	s_Al = 0.0
+	s_Al_target = 0.0
 	liquid = targ%Z.lt.2.4
 
 C	if (abs(zpos) .gt. (targ%length/2.+1.e-5)) then
@@ -34,19 +36,28 @@ C	endif
 	s_target = (targ%length/2. + zpos) / abs(cos(targ%angle))
 	if (liquid) then			!liquid target
 	  if (targ%can .eq. 1) then		!beer can (2.8 mil endcap)
-	    s_Al = s_Al + 0.0028*inch_cm
+	    s_Al_target = s_Al_target + 0.0028*inch_cm
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
-	    s_Al = s_Al + 0.0050*inch_cm
-	  else if (targ%can .eq. 3) then	!cryo2017 10cm
-	     s_Al = s_Al + 0.005*inch_cm
+	    s_Al_target = s_Al_target + 0.0050*inch_cm
+	  else if (targ%can .eq. 3 .or. targ%can .eq. 4) then	!cryo2017 10/15 cm
+	     s_Al_target = s_Al_target + 0.005*inch_cm       ! same 5 mil endcap; type 4 length from targ%length
 	  endif
 	endif
 
 ! ... compute distance in radiation lengths and energy loss
-	radlen = s_target/targ%X0_cm + s_Al/X0_cm_Al
-	call enerloss_new(s_target,targ%rho,targ%Z,targ%A,energy,mass,
+	target_material_active = (.not.liquid) .or. apply_target_material
+	if (target_material_active) then
+	  s_target_used = s_target
+	  s_Al_target_used = s_Al_target
+	else
+	  s_target_used = 0.0
+	  s_Al_target_used = 0.0
+	endif
+	s_Al_total = s_Al + s_Al_target_used
+	radlen = s_target_used/targ%X0_cm + s_Al_total/X0_cm_Al
+	call enerloss_new(s_target_used,targ%rho,targ%Z,targ%A,energy,mass,
      &                  typeflag,Eloss_target)
-	call enerloss_new(s_Al,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
+	call enerloss_new(s_Al_total,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
 	Eloss = Eloss_target + Eloss_Al
 	return
 
@@ -112,10 +123,10 @@ C  10 mil Al s (X0=8.89cm)
 	  if (targ%can .eq. 1) then		!beer can
 	    side_path = 1.325*inch_cm / abs(sin(theta))
 	    if (forward_path.lt.side_path) then
-	      s_Al = s_Al + 0.005*inch_cm / abs(cos(theta))
+	      s_Al_target = s_Al_target + 0.005*inch_cm / abs(cos(theta))
 	    else
 	      s_target = side_path
-	      s_Al = s_Al + 0.005*inch_cm / abs(sin(theta))
+	      s_Al_target = s_Al_target + 0.005*inch_cm / abs(sin(theta))
 	    endif
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 
@@ -141,23 +152,24 @@ c	      stop 'z_can > can radius in target.f !!!'
 	       write(6,*) 'z_can > can radius in target.f !!!',z_can
 c	       stop
 	    endif
-	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  else if (targ%can .eq. 3) then	!cry02017 10cm
+	    s_Al_target = s_Al_target + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
+	  else if (targ%can .eq. 3 .or. targ%can .eq. 4) then	!cryo2017 10/15 cm
             ecir=1.315*2.54           ! endcap inner radius (cm)
             ecor=1.320*2.54           ! endcap outer radius (cm)
             entec=targ%length-ecir        ! entrance to end cap (cm)
             twall = (ecor-ecir)    !  Al wall
-	    
-	    tcm = (targ%length/2. + zpos)
+            ! targ%length selects 10 cm (type 3) or 15 cm (type 4) cylindrical span
+
+            tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
-               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               s_Al_target = s_Al_target + twall/sin(targ%angle)            ! wall material
             else
                s_target=                              ! e goes throught end cap
      >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
 
-              s_Al=   s_Al+                        ! wall
+              s_Al_target = s_Al_target +                        ! wall
      >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
      >    *twall/(ecor-ecir)                   ! & end cap
@@ -167,11 +179,20 @@ c	       stop
 	endif		
 
 ! ... compute distance in radiation lengths and energy loss
-	radlen = s_target/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
+	target_material_active = (.not.liquid) .or. apply_target_material
+	if (target_material_active) then
+	  s_target_used = s_target
+	  s_Al_target_used = s_Al_target
+	else
+	  s_target_used = 0.0
+	  s_Al_target_used = 0.0
+	endif
+	s_Al_total = s_Al + s_Al_target_used
+	radlen = s_target_used/targ%X0_cm + s_Al_total/X0_cm_Al + s_air/X0_cm_air +
      >		s_kevlar/X0_cm_kevlar + s_mylar/X0_cm_mylar
-	call enerloss_new(s_target,targ%rho,targ%Z,targ%A,energy,mass,
+	call enerloss_new(s_target_used,targ%rho,targ%Z,targ%A,energy,mass,
      &                    typeflag,Eloss_target)
-	call enerloss_new(s_Al,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
+	call enerloss_new(s_Al_total,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
 	call enerloss_new(s_air,rho_air,Z_air,A_air,energy,mass,typeflag,
      &                    Eloss_air)
 	call enerloss_new(s_kevlar,rho_kevlar,Z_kevlar,A_kevlar,energy,
@@ -232,12 +253,12 @@ C  10 mil Al s (X0=8.89cm)
 	  if (targ%can .eq. 1) then		!beer can
 	    side_path = 1.325*inch_cm/ abs(sin(theta))
 	    if (forward_path.lt.side_path) then
-	      s_Al = s_Al + 0.005*inch_cm / abs(cos(theta))
+	      s_Al_target = s_Al_target + 0.005*inch_cm / abs(cos(theta))
 	    else
 	      s_target = side_path
-	      s_Al = s_Al + 0.005*inch_cm / abs(sin(theta))
+	      s_Al_target = s_Al_target + 0.005*inch_cm / abs(sin(theta))
 	    endif
-	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
+	    s_Al_target = s_Al_target + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 
 ! this is ugly.  Solve for z position where particle intersects can.  The
@@ -262,23 +283,24 @@ c	      stop 'z_can > can radius in target.f !!!'
 	      write(6,*) 'z_can > can radius in target.f !!!',t,theta
 c	      stop
 	    endif
-	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  else if (targ%can .eq. 3) then	!cry02017 10cm
+	    s_Al_target = s_Al_target + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
+	  else if (targ%can .eq. 3 .or. targ%can .eq. 4) then   !cryo2017 10/15 cm
             ecir=1.315*2.54           ! endcap inner radius (cm)
             ecor=1.320*2.54           ! endcap outer radius (cm)
             entec=targ%length-ecir        ! entrance to end cap (cm)
             twall = (ecor-ecir)    !  Al wall
-	    
-	    tcm = (targ%length/2. + zpos)
+            ! targ%length selects 10 cm (type 3) or 15 cm (type 4) cylindrical span
+
+            tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
-               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               s_Al_target = s_Al_target + twall/sin(targ%angle)            ! wall material
             else
                s_target=                              ! e goes throught end cap
      >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
 
-              s_Al=   s_Al+                        ! wall
+              s_Al_target = s_Al_target +                        ! wall
      >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
      >    *twall/(ecor-ecir)                   ! & end cap
@@ -289,11 +311,20 @@ c	      stop
 
 ! ... compute energy losses
 
-	radlen = s_target/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
+	target_material_active = (.not.liquid) .or. apply_target_material
+	if (target_material_active) then
+	  s_target_used = s_target
+	  s_Al_target_used = s_Al_target
+	else
+	  s_target_used = 0.0
+	  s_Al_target_used = 0.0
+	endif
+	s_Al_total = s_Al + s_Al_target_used
+	radlen = s_target_used/targ%X0_cm + s_Al_total/X0_cm_Al + s_air/X0_cm_air +
      >		s_kevlar/X0_cm_kevlar + s_mylar/X0_cm_mylar
-	call enerloss_new(s_target,targ%rho,targ%Z,targ%A,energy,mass,
+	call enerloss_new(s_target_used,targ%rho,targ%Z,targ%A,energy,mass,
      &                    typeflag,Eloss_target)
-	call enerloss_new(s_Al,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
+	call enerloss_new(s_Al_total,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
 	call enerloss_new(s_air,rho_air,Z_air,A_air,energy,mass,typeflag,
      &                    Eloss_air)
 	call enerloss_new(s_kevlar,rho_kevlar,Z_kevlar,A_kevlar,energy,mass,
@@ -324,7 +355,7 @@ c	      stop
 	integer	i
 	real*8 th_corner, th_corner_min, th_corner_max
 	real*8 E1, E2, E3, E4, t1, t2, t3, t4
-	real*8 zz, th1, th2, m
+        real*8 zz, th1, th2, th_try, m
 	real*8 ebeam, energymin, energymax
 	logical	liquid
 
@@ -424,7 +455,28 @@ C the perfect range, but it's easier than reproducing the generated limits here
 	      targ%teff(2)%min = t1
 	    endif
 	  enddo
-	endif
+        endif
+
+        if (liquid .and. (targ%can .eq. 3 .or. targ%can .eq. 4)) then
+          targ%Eloss(2)%max = -1.d30
+          targ%teff(2)%max = -1.d30
+          targ%Eloss(2)%min = 1.d30
+          targ%teff(2)%min = 1.d30
+          do i = 0, 3
+            zz = z%min+int(i/2)*(z%max-z%min)
+            th_try = the%min+mod(i,2)*(the%max-the%min)
+            call trip_thru_target(2, zz, energymax, th_try, E1, t1, Me, 3)
+            if (E1 .gt. targ%Eloss(2)%max) then
+              targ%Eloss(2)%max = E1
+              targ%teff(2)%max = t1
+            endif
+            call trip_thru_target(2, zz, energymin, th_try, E2, t2, Me, 2)
+            if (E2 .lt. targ%Eloss(2)%min) then
+              targ%Eloss(2)%min = E2
+              targ%teff(2)%min = t2
+            endif
+          enddo
+        endif
 
 ! Scattered proton. As you can see I'm sufficiently lazy to make
 ! the code work out whether high or low beta
@@ -523,7 +575,38 @@ C the perfect range, but it's easier than reproducing the generated limits here
 	  call trip_thru_target (3, zz, energymax, th1, E1, t1, m, 2)
 	  targ%Eloss(3)%min = min(targ%Eloss(3)%min, E1)
 
-	endif
+        endif
+
+        if (liquid .and. (targ%can .eq. 3 .or. targ%can .eq. 4)) then
+          targ%Eloss(3)%max = -1.d30
+          targ%teff(3)%max = -1.d30
+          targ%Eloss(3)%min = 1.d30
+          targ%teff(3)%min = 1.d30
+          do i = 0, 3
+            zz = z%min+int(i/2)*(z%max-z%min)
+            th_try = thp%min+mod(i,2)*(thp%max-thp%min)
+            call trip_thru_target (3, zz, energymin, th_try, E1, t1, m, 3)
+            if (E1 .gt. targ%Eloss(3)%max) then
+              targ%Eloss(3)%max = E1
+              targ%teff(3)%max = t1
+            endif
+            call trip_thru_target (3, zz, energymax, th_try, E2, t2, m, 3)
+            if (E2 .gt. targ%Eloss(3)%max) then
+              targ%Eloss(3)%max = E2
+              targ%teff(3)%max = t2
+            endif
+            call trip_thru_target (3, zz, energymin, th_try, E3, t3, m, 2)
+            if (E3 .lt. targ%Eloss(3)%min) then
+              targ%Eloss(3)%min = E3
+              targ%teff(3)%min = t3
+            endif
+            call trip_thru_target (3, zz, energymax, th_try, E4, t4, m, 2)
+            if (E4 .lt. targ%Eloss(3)%min) then
+              targ%Eloss(3)%min = E4
+              targ%teff(3)%min = t4
+            endif
+          enddo
+        endif
 
 *JRA*! Extreme multiple scattering
 *JRA*
