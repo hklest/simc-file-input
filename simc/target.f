@@ -37,10 +37,8 @@ C	endif
 	    s_Al = s_Al + 0.0028*inch_cm
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 	    s_Al = s_Al + 0.0050*inch_cm
-	  else if (targ%can .eq. 3) then	!cryo2017 10 cm
-	     s_Al = s_Al + 0.005*inch_cm
-	  else if (targ%can .eq. 4) then        !cryo2017 15 cm
-	     s_Al = s_Al + 0.005*inch_cm
+	  else if (targ%can .eq. 3 .or. targ%can .eq. 4) then	!cryo2017 10/15 cm
+	     s_Al = s_Al + 0.005*inch_cm       ! same 5 mil endcap; type 4 length from targ%length
 	  endif
 	endif
 
@@ -144,33 +142,14 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	       stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  else if (targ%can .eq. 3) then	!cryo2017 10 cm
+	  else if (targ%can .eq. 3 .or. targ%can .eq. 4) then	!cryo2017 10/15 cm
             ecir=1.315*2.54           ! endcap inner radius (cm)
             ecor=1.320*2.54           ! endcap outer radius (cm)
             entec=targ%length-ecir        ! entrance to end cap (cm)
             twall = (ecor-ecir)    !  Al wall
-	    
-	    tcm = (targ%length/2. + zpos)
-            if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
-               s_target=ecir/sin(targ%angle)   ! liquid target
-               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
-            else
-               s_target=                              ! e goes throught end cap
-     >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
-     >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
+            ! targ%length selects 10 cm (type 3) or 15 cm (type 4) cylindrical span
 
-              s_Al=   s_Al+                        ! wall
-     >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
-     >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
-     >    *twall/(ecor-ecir)                   ! & end cap
-        endif
-	  else if (targ%can .eq. 4) then	!cryo2017 15 cm
-            ecir=1.315*2.54           ! endcap inner radius (cm)
-            ecor=1.320*2.54           ! endcap outer radius (cm)
-            entec=targ%length-ecir        ! entrance to end cap (cm)
-            twall = (ecor-ecir)    !  Al wall
-	    
-	    tcm = (targ%length/2. + zpos)
+            tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
                s_Al=s_Al+twall/sin(targ%angle)            ! wall material
@@ -285,33 +264,14 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	      stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  else if (targ%can .eq. 3) then	!cryo2017 10 cm
+	  else if (targ%can .eq. 3 .or. targ%can .eq. 4) then   !cryo2017 10/15 cm
             ecir=1.315*2.54           ! endcap inner radius (cm)
             ecor=1.320*2.54           ! endcap outer radius (cm)
             entec=targ%length-ecir        ! entrance to end cap (cm)
             twall = (ecor-ecir)    !  Al wall
-	    
-	    tcm = (targ%length/2. + zpos)
-            if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
-               s_target=ecir/sin(targ%angle)   ! liquid target
-               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
-            else
-               s_target=                              ! e goes throught end cap
-     >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
-     >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
+            ! targ%length selects 10 cm (type 3) or 15 cm (type 4) cylindrical span
 
-              s_Al=   s_Al+                        ! wall
-     >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
-     >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
-     >    *twall/(ecor-ecir)                   ! & end cap
-        endif
-	  else if (targ%can .eq. 4) then	!cryo2017 15 cm
-            ecir=1.315*2.54           ! endcap inner radius (cm)
-            ecor=1.320*2.54           ! endcap outer radius (cm)
-            entec=targ%length-ecir        ! entrance to end cap (cm)
-            twall = (ecor-ecir)    !  Al wall
-	    
-	    tcm = (targ%length/2. + zpos)
+            tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
                s_Al=s_Al+twall/sin(targ%angle)            ! wall material
