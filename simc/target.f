@@ -21,9 +21,11 @@
 ! Hard-coded study flags for cryo2017 target material (targ%can==3):
 ! - zero_cryo2017_wall_al removes aluminum target wall/endcap contributions.
 ! - zero_cryo2017_lh2 removes LH2 target-material contribution.
+! - keep a small nonzero target radlen floor for numerical stability in
+!   radiation initialization (exact/ultra-tiny bt values can under/overflow).
 	parameter (zero_cryo2017_wall_al = .true.)
 	parameter (zero_cryo2017_lh2 = .true.)
-	parameter (min_zeroed_target_radlen = 1.0d-12)
+	parameter (min_zeroed_target_radlen = 1.0d-3)
 
 	s_Al = 0.0
 	liquid = targ%Z.lt.2.4
