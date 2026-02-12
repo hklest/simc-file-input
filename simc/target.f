@@ -8,6 +8,7 @@
 	integer typeflag   !1=generate eloss, 2=min, 3=max, 4=most probable
 	real*8 zpos, energy, mass, theta
 	real*8 Eloss, radlen
+	real*8 min_zeroed_target_radlen
 	real*8 forward_path, side_path
 	real*8 s_target, s_Al, s_kevlar, s_air, s_mylar	! distances travelled
 	real*8 s_target_eff
@@ -22,6 +23,7 @@
 ! - zero_cryo2017_lh2 removes LH2 target-material contribution.
 	parameter (zero_cryo2017_wall_al = .true.)
 	parameter (zero_cryo2017_lh2 = .true.)
+	parameter (min_zeroed_target_radlen = 1.0d-12)
 
 	s_Al = 0.0
 	liquid = targ%Z.lt.2.4
@@ -40,7 +42,8 @@ C	endif
 10	continue
 	s_target = (targ%length/2. + zpos) / abs(cos(targ%angle))
 	s_target_eff = s_target
-	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff = 0.0
+	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff =
+     >		min_zeroed_target_radlen*targ%X0_cm
 	if (liquid) then			!liquid target
 	  if (targ%can .eq. 1) then		!beer can (2.8 mil endcap)
 	    s_Al = s_Al + 0.0028*inch_cm
@@ -177,7 +180,8 @@ c	       stop
 	  endif
 
 	endif		
-	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff = 0.0
+	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff =
+     >		min_zeroed_target_radlen*targ%X0_cm
 
 ! ... compute distance in radiation lengths and energy loss
 	radlen = s_target_eff/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
@@ -302,7 +306,8 @@ c	      stop
 
 	endif
 	s_target_eff = s_target
-	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff = 0.0
+	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff =
+     >		min_zeroed_target_radlen*targ%X0_cm
 
 ! ... compute energy losses
 
