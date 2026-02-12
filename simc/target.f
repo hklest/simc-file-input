@@ -37,7 +37,7 @@ C	endif
 
 ! The incoming electron
 
-	10	continue
+10	continue
 	s_target = (targ%length/2. + zpos) / abs(cos(targ%angle))
 	s_target_eff = s_target
 	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff = 0.0
@@ -161,15 +161,15 @@ c	       stop
 	    tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
-	               if (.not.zero_cryo2017_wall_al) then
-	                 s_Al=s_Al+twall/sin(targ%angle)            ! wall material
-	               endif
+               if (.not.zero_cryo2017_wall_al) then
+                 s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               endif
             else
                s_target=                              ! e goes throught end cap
      >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
 
-	              if (.not.zero_cryo2017_wall_al) s_Al=   s_Al+                        ! wall
+              if (.not.zero_cryo2017_wall_al) s_Al=   s_Al+                        ! wall
      >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
      >    *twall/(ecor-ecir)                   ! & end cap
