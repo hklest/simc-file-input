@@ -11,20 +11,30 @@
 	real*8 min_zeroed_target_radlen
 	real*8 forward_path, side_path
 	real*8 s_target, s_Al, s_kevlar, s_air, s_mylar	! distances travelled
+	real*8 s_Al_prespec, s_air_prespec, s_kevlar_prespec,
+     >		s_mylar_prespec
 	real*8 s_target_eff
 	real*8 Eloss_target, Eloss_Al,Eloss_air		! energy losses
 	real*8 Eloss_kevlar,Eloss_mylar			! (temporary)
 	real*8 z_can,t,atmp,btmp,ctmp,costmp,th_can	!for the pudding-can target.
 	real*8 ecir,ecor,entec,twall,tcm
 	logical liquid,zero_cryo2017_wall_al,zero_cryo2017_lh2
+	logical zero_hms_prespec_material,
+     >		zero_shms_prespec_material
 
 ! Hard-coded study flags for cryo2017 target material (targ%can==3):
 ! - zero_cryo2017_wall_al removes aluminum target wall/endcap contributions.
 ! - zero_cryo2017_lh2 removes LH2 target-material contribution.
 ! - keep a small nonzero target radlen floor for numerical stability in
 !   radiation initialization (exact/ultra-tiny bt values can under/overflow).
+! - zero_hms_prespec_material removes chamber window + air + entrance windows
+!   between target and HMS.
+! - zero_shms_prespec_material removes chamber window + air + entrance window
+!   between target and SHMS.
 	parameter (zero_cryo2017_wall_al = .true.)
 	parameter (zero_cryo2017_lh2 = .true.)
+	parameter (zero_hms_prespec_material = .false.)
+	parameter (zero_shms_prespec_material = .false.)
 	parameter (min_zeroed_target_radlen = 1.0d-3)
 
 	s_Al = 0.0
@@ -120,6 +130,30 @@ C  10 mil Al s (X0=8.89cm)
 	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
+
+	s_Al_prespec = s_Al
+	s_air_prespec = s_air
+	s_kevlar_prespec = s_kevlar
+	s_mylar_prespec = s_mylar
+
+	if (electron_arm.eq.1 .and. zero_hms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	else if ((electron_arm.eq.5 .or. electron_arm.eq.6) .and.
+     >			zero_shms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	endif
+
+	s_Al = s_Al_prespec
+	s_air = s_air_prespec
+	s_kevlar = s_kevlar_prespec
+	s_mylar = s_mylar_prespec
+
 	s_target = forward_path
 	s_target_eff = s_target
 
@@ -245,6 +279,29 @@ C  10 mil Al s (X0=8.89cm)
 	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
+
+	s_Al_prespec = s_Al
+	s_air_prespec = s_air
+	s_kevlar_prespec = s_kevlar
+	s_mylar_prespec = s_mylar
+
+	if (hadron_arm.eq.1 .and. zero_hms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	else if ((hadron_arm.eq.5 .or. hadron_arm.eq.6) .and.
+     >			zero_shms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	endif
+
+	s_Al = s_Al_prespec
+	s_air = s_air_prespec
+	s_kevlar = s_kevlar_prespec
+	s_mylar = s_mylar_prespec
 
 	s_target = forward_path
 	if (liquid) then
