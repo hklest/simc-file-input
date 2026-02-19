@@ -8,13 +8,34 @@
 	integer typeflag   !1=generate eloss, 2=min, 3=max, 4=most probable
 	real*8 zpos, energy, mass, theta
 	real*8 Eloss, radlen
+	real*8 min_zeroed_target_radlen
 	real*8 forward_path, side_path
 	real*8 s_target, s_Al, s_kevlar, s_air, s_mylar	! distances travelled
+	real*8 s_Al_prespec, s_air_prespec, s_kevlar_prespec,
+     >		s_mylar_prespec
+	real*8 s_target_eff
 	real*8 Eloss_target, Eloss_Al,Eloss_air		! energy losses
 	real*8 Eloss_kevlar,Eloss_mylar			! (temporary)
 	real*8 z_can,t,atmp,btmp,ctmp,costmp,th_can	!for the pudding-can target.
 	real*8 ecir,ecor,entec,twall,tcm
-	logical liquid
+	logical liquid,zero_cryo2017_wall_al,zero_cryo2017_lh2
+	logical zero_hms_prespec_material,
+     >		zero_shms_prespec_material
+
+! Hard-coded study flags for cryo2017 target material (targ%can==3):
+! - zero_cryo2017_wall_al removes aluminum target wall/endcap contributions.
+! - zero_cryo2017_lh2 removes LH2 target-material contribution.
+! - keep a small nonzero target radlen floor for numerical stability in
+!   radiation initialization (exact/ultra-tiny bt values can under/overflow).
+! - zero_hms_prespec_material removes chamber window + air + entrance windows
+!   between target and HMS.
+! - zero_shms_prespec_material removes chamber window + air + entrance window
+!   between target and SHMS.
+	parameter (zero_cryo2017_wall_al = .true.)
+	parameter (zero_cryo2017_lh2 = .true.)
+	parameter (zero_hms_prespec_material = .false.)
+	parameter (zero_shms_prespec_material = .false.)
+	parameter (min_zeroed_target_radlen = 1.0d-3)
 
 	s_Al = 0.0
 	liquid = targ%Z.lt.2.4
@@ -32,19 +53,22 @@ C	endif
 
 10	continue
 	s_target = (targ%length/2. + zpos) / abs(cos(targ%angle))
+	s_target_eff = s_target
+	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff =
+     >		min_zeroed_target_radlen*targ%X0_cm
 	if (liquid) then			!liquid target
 	  if (targ%can .eq. 1) then		!beer can (2.8 mil endcap)
 	    s_Al = s_Al + 0.0028*inch_cm
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 	    s_Al = s_Al + 0.0050*inch_cm
 	  else if (targ%can .eq. 3) then	!cryo2017 10cm
-	     s_Al = s_Al + 0.005*inch_cm
+	     if (.not.zero_cryo2017_wall_al) s_Al = s_Al + 0.005*inch_cm
 	  endif
 	endif
 
 ! ... compute distance in radiation lengths and energy loss
-	radlen = s_target/targ%X0_cm + s_Al/X0_cm_Al
-	call enerloss_new(s_target,targ%rho,targ%Z,targ%A,energy,mass,
+	radlen = s_target_eff/targ%X0_cm + s_Al/X0_cm_Al
+	call enerloss_new(s_target_eff,targ%rho,targ%Z,targ%A,energy,mass,
      &                  typeflag,Eloss_target)
 	call enerloss_new(s_Al,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
 	Eloss = Eloss_target + Eloss_Al
@@ -106,7 +130,32 @@ C  10 mil Al s (X0=8.89cm)
 	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
+
+	s_Al_prespec = s_Al
+	s_air_prespec = s_air
+	s_kevlar_prespec = s_kevlar
+	s_mylar_prespec = s_mylar
+
+	if (electron_arm.eq.1 .and. zero_hms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	else if ((electron_arm.eq.5 .or. electron_arm.eq.6) .and.
+     >			zero_shms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	endif
+
+	s_Al = s_Al_prespec
+	s_air = s_air_prespec
+	s_kevlar = s_kevlar_prespec
+	s_mylar = s_mylar_prespec
+
 	s_target = forward_path
+	s_target_eff = s_target
 
 	if (liquid) then
 	  if (targ%can .eq. 1) then		!beer can
@@ -151,13 +200,15 @@ c	       stop
 	    tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
-               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               if (.not.zero_cryo2017_wall_al) then
+                 s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               endif
             else
                s_target=                              ! e goes throught end cap
      >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
 
-              s_Al=   s_Al+                        ! wall
+              if (.not.zero_cryo2017_wall_al) s_Al=   s_Al+                        ! wall
      >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
      >    *twall/(ecor-ecir)                   ! & end cap
@@ -165,11 +216,13 @@ c	       stop
 	  endif
 
 	endif		
+	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff =
+     >		min_zeroed_target_radlen*targ%X0_cm
 
 ! ... compute distance in radiation lengths and energy loss
-	radlen = s_target/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
+	radlen = s_target_eff/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
      >		s_kevlar/X0_cm_kevlar + s_mylar/X0_cm_mylar
-	call enerloss_new(s_target,targ%rho,targ%Z,targ%A,energy,mass,
+	call enerloss_new(s_target_eff,targ%rho,targ%Z,targ%A,energy,mass,
      &                    typeflag,Eloss_target)
 	call enerloss_new(s_Al,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
 	call enerloss_new(s_air,rho_air,Z_air,A_air,energy,mass,typeflag,
@@ -227,6 +280,29 @@ C  10 mil Al s (X0=8.89cm)
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
 
+	s_Al_prespec = s_Al
+	s_air_prespec = s_air
+	s_kevlar_prespec = s_kevlar
+	s_mylar_prespec = s_mylar
+
+	if (hadron_arm.eq.1 .and. zero_hms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	else if ((hadron_arm.eq.5 .or. hadron_arm.eq.6) .and.
+     >			zero_shms_prespec_material) then
+	  s_Al_prespec = 0.0
+	  s_air_prespec = 0.0
+	  s_kevlar_prespec = 0.0
+	  s_mylar_prespec = 0.0
+	endif
+
+	s_Al = s_Al_prespec
+	s_air = s_air_prespec
+	s_kevlar = s_kevlar_prespec
+	s_mylar = s_mylar_prespec
+
 	s_target = forward_path
 	if (liquid) then
 	  if (targ%can .eq. 1) then		!beer can
@@ -272,13 +348,15 @@ c	      stop
 	    tcm = (targ%length/2. + zpos)
             if((tcm+ecir/tan(targ%angle)).lt.entec) then  ! e goes through sidewall
                s_target=ecir/sin(targ%angle)   ! liquid target
-               s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               if (.not.zero_cryo2017_wall_al) then
+                 s_Al=s_Al+twall/sin(targ%angle)            ! wall material
+               endif
             else
                s_target=                              ! e goes throught end cap
      >     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    +(targ%length-ecir-tcm)*cos(targ%angle)) ! liquid target
 
-              s_Al=   s_Al+                        ! wall
+              if (.not.zero_cryo2017_wall_al) s_Al=   s_Al+                        ! wall
      >    +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(targ%angle))**2)
      >    -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(targ%angle))**2))
      >    *twall/(ecor-ecir)                   ! & end cap
@@ -286,12 +364,15 @@ c	      stop
 	  endif
 
 	endif
+	s_target_eff = s_target
+	if (liquid .and. targ%can.eq.3 .and. zero_cryo2017_lh2) s_target_eff =
+     >		min_zeroed_target_radlen*targ%X0_cm
 
 ! ... compute energy losses
 
-	radlen = s_target/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
+	radlen = s_target_eff/targ%X0_cm + s_Al/X0_cm_Al + s_air/X0_cm_air +
      >		s_kevlar/X0_cm_kevlar + s_mylar/X0_cm_mylar
-	call enerloss_new(s_target,targ%rho,targ%Z,targ%A,energy,mass,
+	call enerloss_new(s_target_eff,targ%rho,targ%Z,targ%A,energy,mass,
      &                    typeflag,Eloss_target)
 	call enerloss_new(s_Al,rho_Al,Z_Al,A_Al,energy,mass,typeflag,Eloss_Al)
 	call enerloss_new(s_air,rho_air,Z_air,A_air,energy,mass,typeflag,
