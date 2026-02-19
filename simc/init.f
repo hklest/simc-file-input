@@ -652,6 +652,8 @@ c	exponentiate = use_expon
 	include 'radc.inc'
 
 	integer		i
+	logical		disable_internal_rad
+	parameter	(disable_internal_rad = .true.)
 	real*8		r, Ecutoff, dsoft, dhard, dsoft_prime
 	real*8		lambda_dave, schwinger, brem, bremos
 	type(event_main):: main
@@ -681,30 +683,40 @@ c	exponentiate = use_expon
 
 ! ... the lambda's (effective bt's for internal radiation)
 
-	do i=1,3
-	  lambda(i) = lambda_dave(i,1,doing_tail(3),vertex%Ein,vertex%e%E,vertex%p%E,
-     >			vertex%p%P,vertex%e%theta)
-	enddo
-	rad_proton_this_ev = lambda(3).gt.0
+	if (disable_internal_rad) then
+	  do i=1,3
+	    lambda(i) = 0.0
+	  enddo
+	  rad_proton_this_ev = .false.
+	  hardcorfac = 1.0
+	  g(4) = bt(1) + bt(2)
+	else
+	  do i=1,3
+	    lambda(i) = lambda_dave(i,1,doing_tail(3),vertex%Ein,vertex%e%E,
+     >			vertex%p%E,vertex%p%P,vertex%e%theta)
+	  enddo
+	  rad_proton_this_ev = lambda(3).gt.0
 
 ! ... get the hard correction factor. don't care about Ecutoff! Just want dhard here
 
-	Ecutoff = 450.
-	if (intcor_mode.eq.0) then
-	  r = schwinger(Ecutoff,vertex,.true.,dsoft,dhard)
-	else
-	  if (.not.use_offshell_rad) then
-	    r = brem(vertex%Ein,vertex%e%E,Ecutoff,rad_proton_this_ev,dsoft,dhard,
-     >		dsoft_prime)
+	  Ecutoff = 450.
+	  if (intcor_mode.eq.0) then
+	    r = schwinger(Ecutoff,vertex,.true.,dsoft,dhard)
 	  else
-	    r = bremos(Ecutoff, zero, zero, vertex%Ein, vertex%e%P*vertex%ue%x,
+	    if (.not.use_offshell_rad) then
+	      r = brem(vertex%Ein,vertex%e%E,Ecutoff,rad_proton_this_ev,dsoft,
+     >		dhard,dsoft_prime)
+	    else
+	      r = bremos(Ecutoff, zero, zero, vertex%Ein, vertex%e%P*vertex%ue%x,
      >		vertex%e%P*vertex%ue%y, vertex%e%P*vertex%ue%z, zero, zero, zero,
-     >		vertex%p%P*vertex%up%x, vertex%p%P*vertex%up%y, vertex%p%P*vertex%up%z,
-     >		vertex%p%E, rad_proton_this_ev, dsoft, dhard, dsoft_prime)
+     >		vertex%p%P*vertex%up%x, vertex%p%P*vertex%up%y,
+     >		vertex%p%P*vertex%up%z, vertex%p%E, rad_proton_this_ev,
+     >		dsoft, dhard, dsoft_prime)
+	    endif
 	  endif
+	  hardcorfac = 1./(1.-dhard)
+	  g(4)=-dsoft_prime*Ecutoff+bt(1)+bt(2)
 	endif
-	hardcorfac = 1./(1.-dhard)
-	g(4)=-dsoft_prime*Ecutoff+bt(1)+bt(2)
 
 ! ... initialize the parameters needed for our "basic" calculation
 
@@ -731,6 +743,8 @@ c	exponentiate = use_expon
 	parameter (one=1.)
 
 	integer i
+	logical disable_internal_rad
+	parameter (disable_internal_rad = .true.)
 	real*8 e1,e2,e3,e(3),gamma
 
 	if (debug(2)) write(6,*)'basicrad_init_ev: entering...'
@@ -750,6 +764,32 @@ c	exponentiate = use_expon
 	g(2) = lambda(2) + bt(2)
 	g(3) = lambda(3)
 	g(0) = g(1)+g(2)+g(3)
+
+	if (disable_internal_rad) then
+	  c_int(1) = 0.0
+	  c_int(2) = 0.0
+	  c_int(3) = 0.0
+	  c_int(0) = 0.0
+
+! External constants
+
+	  do i = 1, 2
+	    c_ext(i) = bt(i)/e(i)**bt(i)/gamma(one+bt(i))
+	  enddo
+	  c_ext(3) = 0.0
+	  g_ext = bt(1) + bt(2)
+	  c_ext(0) = c_ext(1)*c_ext(2) * g_ext / bt(1)/bt(2)
+	  c_ext(0) = c_ext(0)*gamma(one+bt(1))*gamma(one+bt(2))/gamma(one+g_ext)
+
+! With internal radiation disabled, combined coefficients reduce to external.
+	  c(1) = c_ext(1)
+	  c(2) = c_ext(2)
+	  c(3) = 0.0
+	  c(0) = c_ext(0)
+	  c(4)=g(4)/(e1*e2)**g(4)/gamma(one+g(4))
+	  if (debug(2)) write(6,*)'basicrad_init_ev: ending...'
+	  return
+	endif
 
 ! Internal constants
 
