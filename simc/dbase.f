@@ -57,6 +57,8 @@
 	use_benhar_sf = .false.
 	random_state_file = ' '
 	random_seed = 0
+	external_rad_only = .false.
+	intcor_Ecutoff = 450.d0
 
 ! ... read the dbase file.
 
@@ -472,6 +474,11 @@ C DJG:
 	  enddo
 	endif
 
+	if (intcor_Ecutoff.le.0.0d0) then
+	  write(6,*) 'WARNING: intcor_Ecutoff <= 0, resetting to default 450 MeV'
+	  intcor_Ecutoff = 450.d0
+	endif
+
 	if (Egamma_gen_max.gt.0.01) then !use hardwired limits if gen_max > 0
 	  hardwired_rad = .true.
 	else
@@ -845,6 +852,8 @@ C DJG:
 	if (doing_semika .and. .not. doing_decay) write(6,*) 'NOTE: not doing decay, so a decay weight will be applied to WEIGHT'
 	if(doing_deutsemi.and.do_fermi) write(6,*) 'NOTE: Fermi motion enabled for semi-incusive production from deuterium'
 	if (.not.using_rad) write(6,*) 'NOTE: Will NOT be applying radiative corrections'
+	if (using_rad .and. external_rad_only)
+     >   write(6,*) 'NOTE: external_rad_only enabled; internal radiation disabled'
 	if (.not.using_E_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the E arm Monte Carlo'
 	if (.not.using_P_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the P arm Monte Carlo'
 	if (.not.using_Eloss) write(6,*) 'NOTE: Will NOT be calculating energy loss in the target'
@@ -961,6 +970,8 @@ C DJG:
 	ierr = regparmint('use_expon',use_expon,0)
 	ierr = regparmint('one_tail',one_tail,0)
 	ierr = regparmint('intcor_mode',intcor_mode,0)
+	ierr = regparmint('external_rad_only',external_rad_only,0)
+	ierr = regparmdouble('intcor_Ecutoff',intcor_Ecutoff,0)
 
 *	SIMULATE
 

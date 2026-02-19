@@ -652,8 +652,6 @@ c	exponentiate = use_expon
 	include 'radc.inc'
 
 	integer		i
-	logical		disable_internal_rad
-	parameter	(disable_internal_rad = .true.)
 	real*8		r, Ecutoff, dsoft, dhard, dsoft_prime
 	real*8		lambda_dave, schwinger, brem, bremos
 	type(event_main):: main
@@ -683,7 +681,7 @@ c	exponentiate = use_expon
 
 ! ... the lambda's (effective bt's for internal radiation)
 
-	if (disable_internal_rad) then
+	if (external_rad_only) then
 	  do i=1,3
 	    lambda(i) = 0.0
 	  enddo
@@ -699,7 +697,7 @@ c	exponentiate = use_expon
 
 ! ... get the hard correction factor. don't care about Ecutoff! Just want dhard here
 
-	  Ecutoff = 450.
+	  Ecutoff = intcor_Ecutoff
 	  if (intcor_mode.eq.0) then
 	    r = schwinger(Ecutoff,vertex,.true.,dsoft,dhard)
 	  else
@@ -743,8 +741,6 @@ c	exponentiate = use_expon
 	parameter (one=1.)
 
 	integer i
-	logical disable_internal_rad
-	parameter (disable_internal_rad = .true.)
 	real*8 e1,e2,e3,e(3),gamma
 
 	if (debug(2)) write(6,*)'basicrad_init_ev: entering...'
@@ -765,7 +761,7 @@ c	exponentiate = use_expon
 	g(3) = lambda(3)
 	g(0) = g(1)+g(2)+g(3)
 
-	if (disable_internal_rad) then
+	if (external_rad_only) then
 	  c_int(1) = 0.0
 	  c_int(2) = 0.0
 	  c_int(3) = 0.0

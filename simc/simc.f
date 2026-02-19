@@ -943,6 +943,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  write(iun,'(4(x,a14,''='',i3))') 'rad_flag',rad_flag,
      >		'extrad_flag', extrad_flag, 'one_tail', one_tail,
      >		'intcor_mode', intcor_mode
+	  write(iun,'(x,a18,''='',l3)') 'external_rad_only', external_rad_only
+	  write(iun,'(x,a18,''='',f11.3)') 'intcor_Ecutoff', intcor_Ecutoff
 	  write(iun,'(x,a14,''='',f11.3)') 'dE_edge_test',dE_edge_test
 	  write(iun,'(x,a14,''='',f11.3)') 'Egamma_max', Egamma_tot_max
 
